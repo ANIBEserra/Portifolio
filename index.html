@@ -3,66 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfólio - Ana Beatriz Beserra</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Portfólio | Ana Beatriz</title>
+
+    <style>
+        /* ======= PALETA DE CORES =======
+           Primária: #5A189A
+           Secundárias: #7B2CBF, #9D4EDD, #C77DFF
+           Fundo escuro: #10002B, #240046, #3C096C
+        */
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", sans-serif;
+            background-color: #10002B;
+            color: #EDEDED;
+        }
+
+        header {
+            background: linear-gradient(90deg, #5A189A, #240046);
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            color: #C77DFF;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            margin-top: 8px;
+            color: #E3C6FF;
+        }
+
+        section {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #9D4EDD;
+            border-left: 5px solid #C77DFF;
+            padding-left: 10px;
+        }
+
+        /* Cards de projetos */
+        .projetos {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background-color: #240046;
+            border: 1px solid #3C096C;
+            padding: 20px;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: #C77DFF;
+            box-shadow: 0px 0px 18px rgba(199, 125, 255, 0.3);
+        }
+
+        .card h3 {
+            color: #C77DFF;
+            margin-top: 0;
+        }
+
+        .card p {
+            color: #D9C2FF;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 14px;
+            background: #7B2CBF;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #9D4EDD;
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            text-align: center;
+            background-color: #240046;
+            color: #C77DFF;
+        }
+    </style>
 </head>
 
 <body>
+
     <header>
-        <h1>Ana Beatriz Beserra</h1>
-        <p>Analista de Dados • BI • SQL • Python</p>
+        <h1>Portfólio de Análise de Dados</h1>
+        <p>Ana Beatriz • Python • SQL • Power BI • Machine Learning</p>
     </header>
 
-    <nav>
-        <a href="#sobre">Sobre mim</a>
-        <a href="#projetos">Projetos</a>
-        <a href="#contato">Contato</a>
-    </nav>
-
-    <section id="sobre">
+    <section>
         <h2>Sobre mim</h2>
         <p>
-            Sou uma analista de dados apaixonada por transformar dados em insights 
-            valiosos. Trabalho com Python, SQL, análise exploratória, visualização 
-            e construção de dashboards para auxiliar decisões estratégicas.
+            Sou analista de dados com experiência em Python, SQL, visualização de dados e dashboards.
+            Tenho paixão por transformar dados em insights estratégicos e criar soluções eficientes.
         </p>
     </section>
 
-    <section id="projetos">
+    <section>
         <h2>Projetos</h2>
 
-        <div class="projetos-grid">
+        <div class="projetos">
 
             <div class="card">
-                <h3>📊 Análise de Vendas</h3>
-                <p>Análise completa de dados de vendas, incluindo EDA, KPIs e gráficos.</p>
-                <a href="#" target="_blank">Ver projeto</a>
+                <h3>📊 Projeto 1 — Dashboard de Vendas</h3>
+                <p>Análise completa de vendas usando Power BI, incluindo métricas de faturamento, clientes e produtos.</p>
+                <a class="btn" href="#">Ver Projeto</a>
             </div>
 
             <div class="card">
-                <h3>📈 Dashboard de Indicadores</h3>
-                <p>Dashboard interativo criado no Power BI com métricas importantes.</p>
-                <a href="#" target="_blank">Ver projeto</a>
+                <h3>🤖 Projeto 2 — Previsão de Demanda</h3>
+                <p>Modelo de machine learning para prever demanda semanal utilizando Python e scikit-learn.</p>
+                <a class="btn" href="#">Ver Projeto</a>
             </div>
 
             <div class="card">
-                <h3>🤖 Previsão de Churn</h3>
-                <p>Modelo preditivo usando Machine Learning para prever evasão de clientes.</p>
-                <a href="#" target="_blank">Ver projeto</a>
+                <h3>📈 Projeto 3 — SQL Exploratório</h3>
+                <p>Exploração de base de dados com queries avançadas, joins, windows functions e CTEs.</p>
+                <a class="btn" href="#">Ver Projeto</a>
             </div>
 
         </div>
     </section>
 
-    <section id="contato">
-        <h2>Contato</h2>
-        <p><strong>Email:</strong> seuemail@email.com</p>
-        <p><strong>LinkedIn:</strong> <a href="#" target="_blank">linkedin.com/in/seuuser</a></p>
-        <p><strong>GitHub:</strong> <a href="https://github.com/anibeserra" target="_blank">github.com/anibeserra</a></p>
-    </section>
-
     <footer>
-        <p>© 2025 - Criado por Ana Beatriz Beserra</p>
+        © 2025 • Desenvolvido por Ana Beatriz
     </footer>
 
 </body>
