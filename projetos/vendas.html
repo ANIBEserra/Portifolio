@@ -3,98 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Vendas</title>
-
+    <title>Monitoramento de Checklists em Tempo Real</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
+            background-color: #10002b;
+            color: #fff;
             margin: 0;
-            font-family: "Segoe UI", sans-serif;
-            background-color: #10002B;
-            color: #EDEDED;
-            line-height: 1.7;
+            padding: 0;
         }
-
         header {
-            background: linear-gradient(90deg, #5A189A, #240046);
-            padding: 30px 20px;
+            background-color: #3c096c;
+            padding: 20px;
             text-align: center;
         }
-
-        header h1 {
+        h1 {
             margin: 0;
-            color: #C77DFF;
-            font-size: 2.2rem;
+            color: #c77dff;
         }
-
-        .voltar {
-            display: inline-block;
-            margin-top: 10px;
-            text-decoration: none;
-            color: #C77DFF;
-            font-size: 1rem;
-        }
-
-        section {
+        .container {
+            padding: 30px;
             max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
+            margin: auto;
         }
-
         h2 {
-            color: #9D4EDD;
-            border-left: 4px solid #C77DFF;
-            padding-left: 10px;
+            color: #9d4edd;
         }
-
         p {
-            color: #D9C2FF;
+            line-height: 1.6;
         }
-
-        .imagem-projeto {
-            margin: 20px 0;
-            text-align: center;
+        .code-box {
+            background: #240046;
+            padding: 15px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            border: 1px solid #5a189a;
+            margin-bottom: 25px;
         }
-
-        .imagem-projeto img {
-            max-width: 90%;
-            border-radius: 10px;
-            border: 2px solid #3C096C;
-        }
-
         footer {
-            margin-top: 60px;
-            padding: 20px;
             text-align: center;
-            background-color: #240046;
-            color: #C77DFF;
+            padding: 20px;
+            background: #3c096c;
+            margin-top: 40px;
+        }
+        a {
+            color: #c77dff;
         }
     </style>
 </head>
-
 <body>
-
     <header>
-        <h1>Dashboard de Vendas</h1>
-        <a class="voltar" href="../index.html">⬅ Voltar ao Início</a>
+        <h1>Projeto: Monitoramento de Checklists em Tempo Real – BASF Agro</h1>
     </header>
 
-    <section>
-        <h2>📌 Descrição do Projeto</h2>
+    <div class="container">
+        <h2>🎯 Problema de Negócio</h2>
         <p>
-            Neste projeto foi desenvolvido um dashboard de vendas completo utilizando Power BI.
-            O objetivo foi acompanhar o desempenho comercial, analisar faturamento, identificar
-            produtos mais vendidos e avaliar o comportamento dos clientes ao longo do tempo.
+            A BASF Agro precisava visualizar em tempo real todos os checklists realizados em sua operação de transporte.
+            Esses checklists avaliam itens mecânicos e de segurança dos veículos antes das viagens, influenciando diretamente
+            a eficiência e o gerenciamento de risco da operação.
+        </p>
+        <p>
+            Era fundamental permitir uma análise imediata de aprovação/reprovação, identificar principais motivos de reprova,
+            avaliar desempenho dos operadores e acompanhar tendências ao longo do dia.
         </p>
 
-        <h2>🛠️ Ferramentas Utilizadas</h2>
+        <h2>📊 Solução Desenvolvida</h2>
         <p>
-            ✓ Power BI<br>
-            ✓ Power Query<br>
-            ✓ DAX<br>
-            ✓ Excel (base de dados)
+            Desenvolvi uma visão completa em Power BI utilizando dados tratados no SQL Server. Os principais indicadores implementados foram:
         </p>
+        <ul>
+            <li>Taxa de Aprovação Geral</li>
+            <li>Quantidade de Checklists Aprovados x Reprovados</li>
+            <li>Tempo médio de execução</li>
+            <li>Desempenho por Operador</li>
+            <li>Série temporal hora a hora</li>
+            <li>Ranking dos itens mais recorrentes de reprovação</li>
+        </ul>
 
-        <h2>📷 Visualização do Dashboard</h2>
-        <div class="imagem-projeto">
-            <img src="../assets/img/dashboard-vendas.png" alt="Da
+        <h2>🗄️ Etapa 1 – Obtenção & Tratamento no SQL Server</h2>
+        <p>Foi criada uma base espelhada chamada <strong>POWERBI</strong>, e abaixo está a view responsável pela preparação dos dados:</p>
 
+        <div class="code-box">
+USE [POWERBI]
+GO
+
+ALTER VIEW [dbo].[CHECKLISTS] AS (
+    SELECT 
+    [... código completo aqui ...]
+)
+GO
+        </div>
+
+        <h2>🛠️ Etapa 2 – Modelagem no Power BI</h2>
+        <p>No Power Query, foi criada uma consulta adicional para identificar e listar todos os itens de reprovação:</p>
+
+        <div class="code-box">
+let
+    Fonte = CHECKLISTS,
+    LinhasNaoVazias = Table.SelectRows(Fonte, each ([ITENS_REPROVA] <> null and [ITENS_REPROVA] <> "")),
+    ColunaListas = Table.AddColumn(LinhasNaoVazias, "ListaItens", each Text.Split([ITENS_REPROVA], ";")),
+    ExpandirItens = Table.ExpandListColumn(ColunaListas, "ListaItens"),
+    ItensTrim = Table.TransformColumns(ExpandirItens, {{"ListaItens", Text.Trim, type text}}),
+    SelecionarItem = Table.SelectColumns(ItensTrim, {"ListaItens"}),
+    ItensDistinct = Table.Distinct(SelecionarItem, {"ListaItens"}),
+    ItensReprova = Table.RenameColumns(ItensDistinct, {{"ListaItens", "ITEM"}})
+in
+    ItensReprova
+        </div>
+
+        <p>Após isso, foram criadas medidas DAX de horário, UTC, KPIs e colunas calculadas para suportar a visualização de tempo real.</p>
+
+        <h2>📈 Resultado Final</h2>
+        <p>
+            O dashboard entregue permite acompanhamento em tempo real da operação, suporte a tomadas de decisão rápidas
+            e maior controle sobre falhas recorrentes nos veículos.
+        </p>
+    </div>
+
+    <footer>
+        <p>© 2025 – Portfólio de Projetos | Desenvolvido por mim</p>
+    </footer>
+</body>
+</html>
