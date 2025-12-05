@@ -4,88 +4,189 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Monitoramento de Checklists em Tempo Real</title>
+
     <style>
+        /* ------------------ BASE ------------------ */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', Arial, sans-serif;
             background-color: #10002b;
             color: #fff;
             margin: 0;
             padding: 0;
         }
+
+        h1, h2, h3 {
+            font-family: "Georgia", serif;
+        }
+
         header {
             background-color: #3c096c;
-            padding: 20px;
+            padding: 40px 20px;
             text-align: center;
         }
+
         h1 {
             margin: 0;
             color: #c77dff;
+            font-size: 32px;
         }
+
+        .section-title {
+            font-size: 26px;
+            color: #c77dff;
+            margin-bottom: 10px;
+        }
+
+        .section-subtitle {
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: #9d4edd;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
         .container {
-            padding: 30px;
-            max-width: 900px;
+            padding: 50px 20px;
+            max-width: 1100px;
             margin: auto;
         }
-        h2 {
-            color: #9d4edd;
-        }
+
         p {
-            line-height: 1.6;
+            line-height: 1.7;
+            opacity: 0.9;
+            font-size: 16px;
         }
+
+        /* ------------------ GRID DE SEÇÕES (ESTILO DO EXEMPLO) ------------------ */
+
+        .visual-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .visual-item {
+            padding: 20px;
+        }
+
+        .icon-circle {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: #5a189a;
+            margin: 0 auto 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            color: #c77dff;
+        }
+
+        .visual-item h3 {
+            color: #cdb4f5;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* ------------------ BLOCOS DE CÓDIGO ------------------ */
+
         .code-box {
             background: #240046;
-            padding: 15px;
-            border-radius: 8px;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #5a189a;
+            margin: 40px 0;
             white-space: pre-wrap;
             overflow-x: auto;
-            border: 1px solid #5a189a;
-            margin-bottom: 25px;
+            font-size: 14px;
         }
+
+        /* ------------------ FOOTER ------------------ */
+
         footer {
             text-align: center;
-            padding: 20px;
+            padding: 25px;
             background: #3c096c;
-            margin-top: 40px;
-        }
-        a {
-            color: #c77dff;
+            margin-top: 60px;
+            font-size: 14px;
+            opacity: 0.8;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Projeto: Monitoramento de Checklists em Tempo Real – BASF Agro</h1>
-    </header>
 
-    <div class="container">
-        <h2>🎯 Problema de Negócio</h2>
-        <p>
-            A BASF Agro precisava visualizar em tempo real todos os checklists realizados em sua operação de transporte.
-            Esses checklists avaliam itens mecânicos e de segurança dos veículos antes das viagens, influenciando diretamente
-            a eficiência e o gerenciamento de risco da operação.
-        </p>
-        <p>
-            Era fundamental permitir uma análise imediata de aprovação/reprovação, identificar principais motivos de reprova,
-            avaliar desempenho dos operadores e acompanhar tendências ao longo do dia.
-        </p>
+<header>
+    <h1>Monitoramento de Checklists em Tempo Real – BASF Agro</h1>
+</header>
 
-        <h2>📊 Solução Desenvolvida</h2>
-        <p>
-            Desenvolvi uma visão completa em Power BI utilizando dados tratados no SQL Server. Os principais indicadores implementados foram:
-        </p>
-        <ul>
-            <li>Taxa de Aprovação Geral</li>
-            <li>Quantidade de Checklists Aprovados x Reprovados</li>
-            <li>Tempo médio de execução</li>
-            <li>Desempenho por Operador</li>
-            <li>Série temporal hora a hora</li>
-            <li>Ranking dos itens mais recorrentes de reprovação</li>
-        </ul>
+<div class="container">
 
-        <h2>🗄️ Etapa 1 – Obtenção & Tratamento no SQL Server</h2>
-        <p>Foi criada uma base espelhada chamada <strong>POWERBI</strong>, e abaixo está a view responsável pela preparação dos dados:</p>
+    <!-- Problema de Negócio em formato visual -->
+    <p class="section-subtitle">Visão Geral</p>
+    <h2 class="section-title">🎯 Problema de Negócio</h2>
 
-        <div class="code-box">
+    <div class="visual-grid">
+        <div class="visual-item">
+            <div class="icon-circle">🚚</div>
+            <h3>Operação de Transporte</h3>
+            <p>A BASF Agro precisava acompanhar todos os checklists feitos antes das viagens.</p>
+        </div>
+
+        <div class="visual-item">
+            <div class="icon-circle">⚠️</div>
+            <h3>Gestão de Riscos</h3>
+            <p>Itens de segurança e mecânica impactavam diretamente o risco operacional.</p>
+        </div>
+
+        <div class="visual-item">
+            <div class="icon-circle">⏱️</div>
+            <h3>Informação Imediata</h3>
+            <p>Era essencial visualizar aprovações e reprovações em tempo real.</p>
+        </div>
+    </div>
+
+    <br><br>
+
+    <!-- Solução Desenvolvida -->
+    <p class="section-subtitle">Entrega</p>
+    <h2 class="section-title">📊 Solução Desenvolvida</h2>
+
+    <div class="visual-grid">
+        <div class="visual-item">
+            <div class="icon-circle">📈</div>
+            <h3>KPIs Essenciais</h3>
+            <p>
+                Taxa de aprovação, tempo médio, séries temporais e ranking de reprovações.
+            </p>
+        </div>
+
+        <div class="visual-item">
+            <div class="icon-circle">🧠</div>
+            <h3>Modelagem Centralizada</h3>
+            <p>
+                SQL Server + Power BI integrados para análises rápidas e confiáveis.
+            </p>
+        </div>
+
+        <div class="visual-item">
+            <div class="icon-circle">👷</div>
+            <h3>Desempenho por Operador</h3>
+            <p>
+                Avaliação individual do responsável por cada checklist.
+            </p>
+        </div>
+    </div>
+
+    <br><br>
+
+    <!-- Etapa SQL -->
+    <p class="section-subtitle">Etapa 1</p>
+    <h2 class="section-title">🗄️ Tratamento no SQL Server</h2>
+    <p>Foi criada uma base espelhada chamada <strong>POWERBI</strong>. Abaixo, a view principal:</p>
+
+    <div class="code-box">
 USE [POWERBI]
 GO
 
@@ -94,12 +195,15 @@ ALTER VIEW [dbo].[CHECKLISTS] AS (
     [... código completo aqui ...]
 )
 GO
-        </div>
+    </div>
 
-        <h2>🛠️ Etapa 2 – Modelagem no Power BI</h2>
-        <p>No Power Query, foi criada uma consulta adicional para identificar e listar todos os itens de reprovação:</p>
+    <!-- Etapa Power Query -->
+    <p class="section-subtitle">Etapa 2</p>
+    <h2 class="section-title">🛠️ Modelagem no Power BI</h2>
 
-        <div class="code-box">
+    <p>Consulta para identificar todos os itens de reprovação:</p>
+
+    <div class="code-box">
 let
     Fonte = CHECKLISTS,
     LinhasNaoVazias = Table.SelectRows(Fonte, each ([ITENS_REPROVA] <> null and [ITENS_REPROVA] <> "")),
@@ -111,19 +215,45 @@ let
     ItensReprova = Table.RenameColumns(ItensDistinct, {{"ListaItens", "ITEM"}})
 in
     ItensReprova
-        </div>
-
-        <p>Após isso, foram criadas medidas DAX de horário, UTC, KPIs e colunas calculadas para suportar a visualização de tempo real.</p>
-
-        <h2>📈 Resultado Final</h2>
-        <p>
-            O dashboard entregue permite acompanhamento em tempo real da operação, suporte a tomadas de decisão rápidas
-            e maior controle sobre falhas recorrentes nos veículos.
-        </p>
     </div>
 
-    <footer>
-        <p>© 2025 – Portfólio de Projetos | Desenvolvido por mim</p>
-    </footer>
+    <br><br>
+
+    <!-- Resultado Final -->
+    <p class="section-subtitle">Impacto</p>
+    <h2 class="section-title">📈 Resultado Final</h2>
+
+    <div class="visual-grid">
+        <div class="visual-item">
+            <div class="icon-circle">🔍</div>
+            <h3>Monitoramento em Tempo Real</h3>
+            <p>
+                Acompanhamento minuto a minuto da operação.
+            </p>
+        </div>
+
+        <div class="visual-item">
+            <div class="icon-circle">⚙️</div>
+            <h3>Tomada de Decisão</h3>
+            <p>
+                Menos riscos, resposta rápida e dados confiáveis.
+            </p>
+        </div>
+
+        <div class="visual-item">
+            <div class="icon-circle">📊</div>
+            <h3>Insights Visuais</h3>
+            <p>
+                Dashboards claros e focados no que realmente importa.
+            </p>
+        </div>
+    </div>
+
+</div>
+
+<footer>
+    © 2025 – Portfólio de Projetos | Desenvolvido por mim
+</footer>
+
 </body>
 </html>
