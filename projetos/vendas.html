@@ -3,185 +3,620 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Monitoramento de Checklists em Tempo Real</title>
-
-    <!-- Import Icons -->
+    <title>BASF Agro - Case Study</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #0b0219;
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
             color: #fff;
-            margin: 0;
+            overflow-x: hidden;
         }
 
-        header {
-            background: linear-gradient(90deg, #3c096c, #7b2cbf);
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+        /* Cursor personalizado */
+        body::before {
+            content: '';
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            border: 2px solid #00ff88;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.6;
+            transition: all 0.1s ease;
         }
 
-        header h1 {
-            margin: 0;
-            color: #e0aaff;
-            font-size: 28px;
-            font-weight: bold;
+        /* Grid de fundo */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
         }
 
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 50%, rgba(0, 255, 136, 0.15), transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero-shapes {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            width: 500px;
+            height: 500px;
+            opacity: 0.4;
+        }
+
+        .shape {
+            position: absolute;
+            border: 2px solid #00ff88;
+            animation: rotate 20s linear infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+        }
+
+        .shape:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: 50%;
+            transform: rotate(45deg);
+        }
+
+        .shape:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            bottom: 10%;
+            right: 20%;
+            animation-delay: -5s;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+
+        .label {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #00ff88;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #fff 0%, #00ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-desc {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 50px;
+            margin-top: 50px;
+        }
+
+        .stat-item {
+            border-left: 3px solid #00ff88;
+            padding-left: 20px;
+        }
+
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+
+        /* Content Sections */
         .container {
-            padding: 30px;
-            max-width: 1100px;
-            margin: auto;
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 5%;
+        }
+
+        section {
+            margin-bottom: 150px;
+        }
+
+        .section-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            color: #00ff88;
+            font-weight: 600;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
         }
 
         h2 {
-            color: #c77dff;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 40px;
+            line-height: 1.2;
+        }
+
+        /* Card moderno */
+        .card-modern {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 50px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .card-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00ff88, transparent);
+        }
+
+        .card-modern:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .card-modern p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+
+        /* Grid de features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .feature-card {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 40px 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: #00ff88;
+            border-radius: 20px 0 0 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), transparent);
+            transform: translateX(10px);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: #00ff88;
+            margin-bottom: 20px;
+        }
+
+        .feature-text {
+            font-size: 1.1rem;
+            color: #ddd;
+            line-height: 1.6;
+        }
+
+        /* Code Section */
+        .code-section {
+            background: #050505;
+            border: 1px solid #1a1a1a;
+            border-radius: 20px;
+            padding: 40px;
+            position: relative;
             margin-top: 40px;
         }
 
-        p, ul {
-            line-height: 1.7;
-            font-size: 16px;
-        }
-
-        .card {
-            background: #1a0533;
-            border: 1px solid #5a189a;
-            padding: 22px;
-            border-radius: 12px;
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            padding-bottom: 20px;
+            border-bottom: 1px solid #1a1a1a;
         }
 
-        .code-box {
-            background: #240046;
-            padding: 15px;
-            border-radius: 8px;
-            white-space: pre-wrap;
+        .code-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            color: #00ff88;
+        }
+
+        .code-lang {
+            padding: 5px 15px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .code-content {
             overflow-x: auto;
-            border: 1px solid #5a189a;
-            margin-top: 15px;
         }
 
-        footer {
+        .code-content pre {
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #aaa;
+        }
+
+        /* Result Section */
+        .result-section {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 255, 136, 0.05));
+            border: 2px solid #00ff88;
+            border-radius: 30px;
+            padding: 80px 60px;
             text-align: center;
-            padding: 20px;
-            background: #3c096c;
-            margin-top: 40px;
-            color: #e0aaff;
+            position: relative;
+            overflow: hidden;
         }
 
-        ul li {
-            padding: 5px 0;
+        .result-section::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(0, 255, 136, 0.2), transparent);
+            transform: translate(-50%, -50%);
+            pointer-events: none;
         }
 
-        .icon {
-            color: #c77dff;
-            margin-right: 8px;
+        .result-section h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Responsivo */
+        .result-section p {
+            font-size: 1.3rem;
+            line-height: 1.8;
+            color: #ddd;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Footer */
+        footer {
+            background: #000;
+            border-top: 1px solid #1a1a1a;
+            padding: 60px 5%;
+            text-align: center;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-content p {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .footer-highlight {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            header h1 {
-                font-size: 22px;
+            .hero {
+                padding: 100px 5%;
             }
-            .container {
-                padding: 15px;
+
+            .hero-shapes {
+                width: 300px;
+                height: 300px;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 30px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-modern {
+                padding: 30px;
+            }
+
+            .code-section {
+                padding: 25px;
+            }
+
+            .result-section {
+                padding: 50px 30px;
             }
         }
     </style>
 </head>
-
 <body>
+    <div class="grid-bg"></div>
 
-<header>
-    <h1>Monitoramento de Checklists em Tempo Real – BASF Agro</h1>
-</header>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+        
+        <div class="hero-content">
+            <span class="label">Case Study</span>
+            <h1>Monitoramento<br>em Tempo Real</h1>
+            <p class="hero-desc">
+                Sistema inteligente de análise de checklists para operação de transporte BASF Agro
+            </p>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">Real-time</div>
+                    <div class="stat-label">Monitoramento</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Visibilidade</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Power BI</div>
+                    <div class="stat-label">Tecnologia</div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<div class="container">
+    <!-- Content -->
+    <div class="container">
 
-    <div class="card">
-        <h2><i class="fa-solid fa-bullseye icon"></i> Problema de Negócio</h2>
-        <p>
-            A BASF Agro precisava visualizar em tempo real todos os checklists realizados em sua operação de transporte.
-            Esses checklists avaliam itens mecânicos e de segurança dos veículos antes das viagens, influenciando diretamente
-            a eficiência e o gerenciamento de risco da operação.
-        </p>
-        <p>
-            Era fundamental permitir uma análise imediata de aprovação/reprovação, identificar os principais motivos de reprova,
-            avaliar desempenho dos operadores e acompanhar tendências ao longo do dia.
-        </p>
-    </div>
+        <!-- Problem -->
+        <section>
+            <div class="section-number">01 — DESAFIO</div>
+            <h2>O Problema de Negócio</h2>
+            <div class="card-modern">
+                <p>
+                    A BASF Agro precisava visualizar em tempo real todos os checklists realizados em sua operação de transporte.
+                    Esses checklists avaliam itens mecânicos e de segurança dos veículos antes das viagens, influenciando diretamente
+                    a eficiência e o gerenciamento de risco da operação.
+                </p>
+                <p>
+                    Era fundamental permitir uma análise imediata de aprovação/reprovação, identificar os principais motivos de reprova,
+                    avaliar desempenho dos operadores e acompanhar tendências ao longo do dia.
+                </p>
+            </div>
+        </section>
 
+        <!-- Solution -->
+        <section>
+            <div class="section-number">02 — SOLUÇÃO</div>
+            <h2>Arquitetura da Solução</h2>
+            <div class="card-modern">
+                <p>Foi construída uma visão completa em Power BI utilizando dados tratados no SQL Server.</p>
+                
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-check-circle"></i></div>
+                        <div class="feature-text">Taxa de Aprovação Geral</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-list-check"></i></div>
+                        <div class="feature-text">Checklists Aprovados x Reprovados</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-clock"></i></div>
+                        <div class="feature-text">Tempo médio de execução</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-ranking-star"></i></div>
+                        <div class="feature-text">Ranking dos operadores</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-chart-area"></i></div>
+                        <div class="feature-text">Série temporal hora a hora</div>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-exclamation-triangle"></i></div>
+                        <div class="feature-text">Itens recorrentes de reprovação</div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <div class="card">
-        <h2><i class="fa-solid fa-chart-line icon"></i> Solução Desenvolvida</h2>
-        <p>Foi construída uma visão completa em Power BI utilizando dados tratados no SQL Server. Os principais indicadores foram:</p>
-
-        <ul>
-            <li>✔ Taxa de Aprovação Geral</li>
-            <li>✔ Checklists Aprovados x Reprovados</li>
-            <li>✔ Tempo médio de execução</li>
-            <li>✔ Ranking dos operadores</li>
-            <li>✔ Série temporal hora a hora</li>
-            <li>✔ Itens mais recorrentes de reprovação</li>
-        </ul>
-    </div>
-
-
-    <div class="card">
-        <h2><i class="fa-solid fa-database icon"></i> Etapa 1 – Tratamento no SQL Server</h2>
-        <p>Foi criada uma base espelhada chamada <strong>POWERBI</strong>. A view abaixo organiza e padroniza os dados:</p>
-
-        <div class="code-box">
-USE [POWERBI]
+        <!-- SQL -->
+        <section>
+            <div class="section-number">03 — DESENVOLVIMENTO</div>
+            <h2>Tratamento de Dados SQL</h2>
+            <div class="card-modern">
+                <p>Foi criada uma base espelhada chamada <strong>POWERBI</strong> com views otimizadas para análise.</p>
+                
+                <div class="code-section">
+                    <div class="code-header">
+                        <div class="code-title">View de Checklists</div>
+                        <div class="code-lang">SQL</div>
+                    </div>
+                    <div class="code-content">
+                        <pre>USE [POWERBI]
 GO
 
 ALTER VIEW [dbo].[CHECKLISTS] AS (
     SELECT 
     [... código completo aqui ...]
 )
-GO
-        </div>
-    </div>
+GO</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-
-    <div class="card">
-        <h2><i class="fa-solid fa-gears icon"></i> Etapa 2 – Modelagem no Power BI</h2>
-
-        <p>Foi criada uma consulta no Power Query para listar todos os itens de reprovação:</p>
-
-        <div class="code-box">
-let
+        <!-- Power BI -->
+        <section>
+            <div class="section-number">04 — MODELAGEM</div>
+            <h2>Transformação no Power BI</h2>
+            <div class="card-modern">
+                <p>Consulta Power Query para processar itens de reprovação:</p>
+                
+                <div class="code-section">
+                    <div class="code-header">
+                        <div class="code-title">Power Query M</div>
+                        <div class="code-lang">M LANGUAGE</div>
+                    </div>
+                    <div class="code-content">
+                        <pre>let
     Fonte = CHECKLISTS,
-    LinhasNaoVazias = Table.SelectRows(Fonte, each ([ITENS_REPROVA] <> null and [ITENS_REPROVA] <> "")),
-    ColunaListas = Table.AddColumn(LinhasNaoVazias, "ListaItens", each Text.Split([ITENS_REPROVA], ";")),
+    LinhasNaoVazias = Table.SelectRows(Fonte, 
+        each ([ITENS_REPROVA] <> null and [ITENS_REPROVA] <> "")),
+    ColunaListas = Table.AddColumn(LinhasNaoVazias, "ListaItens", 
+        each Text.Split([ITENS_REPROVA], ";")),
     ExpandirItens = Table.ExpandListColumn(ColunaListas, "ListaItens"),
-    ItensTrim = Table.TransformColumns(ExpandirItens, {{"ListaItens", Text.Trim, type text}}),
+    ItensTrim = Table.TransformColumns(ExpandirItens, 
+        {{"ListaItens", Text.Trim, type text}}),
     SelecionarItem = Table.SelectColumns(ItensTrim, {"ListaItens"}),
     ItensDistinct = Table.Distinct(SelecionarItem, {"ListaItens"}),
-    ItensReprova = Table.RenameColumns(ItensDistinct, {{"ListaItens", "ITEM"}})
+    ItensReprova = Table.RenameColumns(ItensDistinct, 
+        {{"ListaItens", "ITEM"}})
 in
-    ItensReprova
+    ItensReprova</pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Result -->
+        <section>
+            <div class="section-number">05 — RESULTADO</div>
+            <h2>Impacto Operacional</h2>
+            <div class="result-section">
+                <h3>Sucesso Mensurável</h3>
+                <p>
+                    O dashboard final permitiu acompanhamento <strong>em tempo real</strong> da operação,
+                    facilitando decisões rápidas e aumentando o controle sobre falhas recorrentes nos veículos.
+                    A visibilidade completa dos dados transformou a gestão de risco da operação.
+                </p>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <p>© 2025 — Portfólio de Projetos</p>
+            <p>Desenvolvido com <span class="footer-highlight">dados, design e código</span></p>
         </div>
-    </div>
-
-
-    <div class="card">
-        <h2><i class="fa-solid fa-chart-pie icon"></i> Resultado Final</h2>
-        <p>
-            O dashboard final permitiu acompanhamento <strong>em tempo real</strong> da operação,
-            facilitando decisões rápidas e aumentando o controle sobre falhas recorrentes nos veículos.
-        </p>
-    </div>
-
-</div>
-
-<footer>
-    © 2025 – Portfólio de Projetos | Desenvolvido por mim
-</footer>
+    </footer>
 
 </body>
 </html>
