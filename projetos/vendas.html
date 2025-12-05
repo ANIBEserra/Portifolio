@@ -459,7 +459,7 @@
             <span class="label">Case Study</span>
             <h1>Monitoramento<br>em Tempo Real</h1>
             <p class="hero-desc">
-                Sistema inteligente de análise de checklists para operação de transporte BASF Agro
+                Sistema inteligente de análise de checklists para operação de transporte
             </p>
             
             <div class="stats">
@@ -488,7 +488,7 @@
             <h2>O Problema de Negócio</h2>
             <div class="card-modern">
                 <p>
-                    A BASF Agro precisava visualizar em tempo real todos os checklists realizados em sua operação de transporte.
+                    O Cliente precisava visualizar em tempo real todos os checklists realizados em sua operação de transporte.
                     Esses checklists avaliam itens mecânicos e de segurança dos veículos antes das viagens, influenciando diretamente
                     a eficiência e o gerenciamento de risco da operação.
                 </p>
@@ -536,63 +536,70 @@
         </section>
 
         <!-- SQL -->
-        <section>
-            <div class="section-number">03 — DESENVOLVIMENTO</div>
-            <h2>Tratamento de Dados SQL</h2>
-            <div class="card-modern">
-                <p>Foi criada uma base espelhada chamada <strong>POWERBI</strong> com views otimizadas para análise.</p>
-                
-                <div class="code-section">
-                    <div class="code-header">
-                        <div class="code-title">View de Checklists</div>
-                        <div class="code-lang">SQL</div>
-                    </div>
-                    <div class="code-content">
-                        <pre>USE [POWERBI]
-GO
+<section>
+    <div class="section-number">03 — INGESTÃO & TRANSFORMAÇÃO</div>
+    <h2>Tratamento de Dados</h2>
 
-ALTER VIEW [dbo].[CHECKLISTS] AS (
-    SELECT 
-    [... código completo aqui ...]
-)
-GO</pre>
-                    </div>
-                </div>
-            </div>
-        </section>
+    <div style="text-align: center; padding: 40px 0;">
+        <div style="display: inline-flex; align-items: center; gap: 50px; justify-content: center;">
 
-        <!-- Power BI -->
-        <section>
-            <div class="section-number">04 — MODELAGEM</div>
-            <h2>Transformação no Power BI</h2>
-            <div class="card-modern">
-                <p>Consulta Power Query para processar itens de reprovação:</p>
-                
-                <div class="code-section">
-                    <div class="code-header">
-                        <div class="code-title">Power Query M</div>
-                        <div class="code-lang">M LANGUAGE</div>
-                    </div>
-                    <div class="code-content">
-                        <pre>let
-    Fonte = CHECKLISTS,
-    LinhasNaoVazias = Table.SelectRows(Fonte, 
-        each ([ITENS_REPROVA] <> null and [ITENS_REPROVA] <> "")),
-    ColunaListas = Table.AddColumn(LinhasNaoVazias, "ListaItens", 
-        each Text.Split([ITENS_REPROVA], ";")),
-    ExpandirItens = Table.ExpandListColumn(ColunaListas, "ListaItens"),
-    ItensTrim = Table.TransformColumns(ExpandirItens, 
-        {{"ListaItens", Text.Trim, type text}}),
-    SelecionarItem = Table.SelectColumns(ItensTrim, {"ListaItens"}),
-    ItensDistinct = Table.Distinct(SelecionarItem, {"ListaItens"}),
-    ItensReprova = Table.RenameColumns(ItensDistinct, 
-        {{"ListaItens", "ITEM"}})
-in
-    ItensReprova</pre>
-                    </div>
-                </div>
-            </div>
-        </section>
+            <!-- SQL Server Icon -->
+            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968364.png" 
+                 alt="SQL Server" 
+                 style="width: 85px; filter: brightness(0) saturate(100%) invert(69%) sepia(71%) saturate(462%) hue-rotate(82deg) brightness(101%) contrast(92%);">
+
+            <!-- Arrow -->
+            <i class="fa-solid fa-arrow-right" 
+               style="color: #00ff88; font-size: 2.3rem;"></i>
+
+            <!-- Power BI Icon -->
+            <img src="https://cdn-icons-png.flaticon.com/512/9068/9068643.png"
+                 alt="Power BI"
+                 style="width: 85px; filter: brightness(0) saturate(100%) invert(69%) sepia(71%) saturate(462%) hue-rotate(82deg) brightness(101%) contrast(92%);">
+
+        </div>
+
+        <!-- Description -->
+        <p style="font-size: 1.15rem; color: #ccc; margin-top: 25px; max-width: 750px; margin-left: auto; margin-right: auto;">
+            Criação da base <strong>POWERBI</strong> no SQL Server, utilizando views otimizadas, cálculos de duração,
+            categorização de status e geração dinâmica de itens reprovados com <strong>CONCAT_WS</strong>.
+        </p>
+    </div>
+</section>
+
+
+<!-- Power BI -->
+<section>
+    <div class="section-number">04 — MODELAGEM & VISUALIZAÇÃO</div>
+    <h2>Camada de Consumo</h2>
+
+    <div style="text-align: center; padding: 40px 0;">
+        <div style="display: inline-flex; align-items: center; gap: 50px; justify-content: center;">
+
+            <!-- Power Query Icon -->
+            <img src="https://cdn-icons-png.flaticon.com/512/919/919567.png"
+                 alt="Power Query"
+                 style="width: 85px; filter: brightness(0) saturate(100%) invert(69%) sepia(71%) saturate(462%) hue-rotate(82deg) brightness(101%) contrast(92%);">
+            
+            <!-- Plus -->
+            <i class="fa-solid fa-plus"
+               style="color: #00ff88; font-size: 2.3rem;"></i>
+
+            <!-- DAX Icon -->
+            <img src="https://cdn-icons-png.flaticon.com/512/5968/5968381.png"
+                 alt="DAX"
+                 style="width: 85px; filter: brightness(0) saturate(100%) invert(69%) sepia(71%) saturate(462%) hue-rotate(82deg) brightness(101%) contrast(92%);">
+
+        </div>
+
+        <!-- Description -->
+        <p style="font-size: 1.15rem; color: #ccc; margin-top: 25px; max-width: 750px; margin-left: auto; margin-right: auto;">
+            Modelagem em <strong>DirectQuery</strong>, separação de itens de reprovação via <strong>Text.Split</strong>,
+            e criação de medidas DAX com tabela calendário usando <strong>UTCNOW()</strong> para cálculos em tempo real.
+        </p>
+    </div>
+
+</section>
 
         <!-- Result -->
         <section>
@@ -614,7 +621,7 @@ in
     <footer>
         <div class="footer-content">
             <p>© 2025 — Portfólio de Projetos</p>
-            <p>Desenvolvido com <span class="footer-highlight">dados, design e código</span></p>
+            <p>Desenvolvido por <span class="footer-highlight">Anna Beatriz Beserra</span></p>
         </div>
     </footer>
 
