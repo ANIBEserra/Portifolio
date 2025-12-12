@@ -365,6 +365,16 @@
             transform: translate(-50%, -50%);
             pointer-events: none;
         }
+        .iframe-box{
+            max-width: 500px;
+            min-height: auto;
+        }
+
+         .iframe-box > iframe{
+             width: 100%;
+             min-height: auto;
+         }
+        
 
         .result-section h3 {
             font-family: 'Space Grotesk', sans-serif;
@@ -593,8 +603,8 @@
                 </p>
             </div>
         </section>
-        <div>
-            <iframe title="KPI LIBERACAO DE VEÍCULOS" width="1024" height="1060" src="https://app.powerbi.com/view?r=eyJrIjoiZWRhZjAzZGYtZmY4Mi00YzU2LTg0ZTAtNDY3NzhlMjQ5YTY5IiwidCI6IjQ2MGRjMmQ5LWQ5NGMtNDZmNy05NzU1LTk5ZmVhMmY0ZDFhOSJ9&embedImagePlaceholder=true" frameborder="0" allowFullScreen="true"></iframe>
+        <div class="iframe-box">
+            <iframe title="KPI LIBERACAO DE VEÍCULOS" src="https://app.powerbi.com/view?r=eyJrIjoiZWRhZjAzZGYtZmY4Mi00YzU2LTg0ZTAtNDY3NzhlMjQ5YTY5IiwidCI6IjQ2MGRjMmQ5LWQ5NGMtNDZmNy05NzU1LTk5ZmVhMmY0ZDFhOSJ9&embedImagePlaceholder=true" frameborder="0" allowFullScreen="true"></iframe>
         </div>
 
     </div>
