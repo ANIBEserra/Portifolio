@@ -4,150 +4,514 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portfólio | Ana Beatriz</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
-        /* ======= PALETA DE CORES =======
-           Primária: #5A189A
-           Secundárias: #7B2CBF, #9D4EDD, #C77DFF
-           Fundo escuro: #10002B, #240046, #3C096C
-        */
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
-            margin: 0;
-            font-family: "Segoe UI", sans-serif;
-            background-color: #10002B;
-            color: #EDEDED;
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
         }
 
-        header {
-            background: linear-gradient(90deg, #5A189A, #240046);
-            padding: 40px 20px;
-            text-align: center;
+        /* Grid de fundo */
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        header h1 {
-            font-size: 2.5rem;
-            margin: 0;
-            color: #C77DFF;
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            overflow: hidden;
         }
 
-        header p {
-            font-size: 1.2rem;
-            margin-top: 8px;
-            color: #E3C6FF;
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 50%, rgba(0, 255, 136, 0.15), transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero-shapes {
+            position: absolute;
+            top: 10%;
+            right: 10%;
+            width: 500px;
+            height: 500px;
+            opacity: 0.4;
+        }
+
+        .shape {
+            position: absolute;
+            border: 2px solid #00ff88;
+            animation: rotate 20s linear infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            top: 0;
+            left: 0;
+        }
+
+        .shape:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 50%;
+            left: 50%;
+            transform: rotate(45deg);
+        }
+
+        .shape:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            bottom: 10%;
+            right: 20%;
+            animation-delay: -5s;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+        }
+
+        .label {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #00ff88;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #fff 0%, #00ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-desc {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 20px;
+            max-width: 700px;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .tech-badge {
+            padding: 10px 20px;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #00ff88;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tech-badge:hover {
+            background: rgba(0, 255, 136, 0.1);
+            transform: translateY(-3px);
+        }
+
+        /* Content Sections */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 100px 5%;
         }
 
         section {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
+            margin-bottom: 150px;
+        }
+
+        .section-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            color: #00ff88;
+            font-weight: 600;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
         }
 
         h2 {
-            color: #9D4EDD;
-            border-left: 5px solid #C77DFF;
-            padding-left: 10px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 40px;
+            line-height: 1.2;
         }
 
-        /* Cards de projetos */
-        .projetos {
+        /* Card moderno */
+        .card-modern {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            padding: 50px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .card-modern::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00ff88, transparent);
+        }
+
+        .card-modern p {
+            font-size: 1.15rem;
+            line-height: 1.8;
+            color: #ccc;
+            margin-bottom: 25px;
+        }
+
+        .card-modern p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Áreas de Experiência */
+        .experience-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
         }
 
-        .card {
-            background-color: #240046;
-            border: 1px solid #3C096C;
-            padding: 20px;
-            border-radius: 12px;
-            transition: 0.3s;
+        .experience-card {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            position: relative;
+            transition: all 0.3s ease;
         }
 
-        .card:hover {
-            transform: translateY(-6px);
-            border-color: #C77DFF;
-            box-shadow: 0px 0px 18px rgba(199, 125, 255, 0.3);
+        .experience-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: #00ff88;
+            border-radius: 20px 0 0 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .card h3 {
-            color: #C77DFF;
-            margin-top: 0;
+        .experience-card:hover::before {
+            opacity: 1;
         }
 
-        .card p {
-            color: #D9C2FF;
+        .experience-card:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), transparent);
+            transform: translateX(10px);
+        }
+
+        .experience-icon {
+            font-size: 2.5rem;
+            color: #00ff88;
+            margin-bottom: 20px;
+        }
+
+        .experience-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .experience-text {
+            font-size: 1rem;
+            color: #bbb;
+            line-height: 1.7;
+        }
+
+        /* Grid de Projetos */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+
+        .project-card {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00ff88, transparent);
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 255, 136, 0.2);
+        }
+
+        .project-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .project-card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 15px;
+        }
+
+        .project-card p {
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #bbb;
+            margin-bottom: 25px;
         }
 
         .btn {
             display: inline-block;
-            margin-top: 10px;
-            padding: 8px 14px;
-            background: #7B2CBF;
-            color: white;
+            padding: 12px 30px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            color: #00ff88;
             text-decoration: none;
-            border-radius: 8px;
-            transition: 0.3s;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .btn:hover {
-            background: #9D4EDD;
+            background: #00ff88;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.3);
         }
 
+        /* Footer */
         footer {
-            margin-top: 50px;
-            padding: 20px;
+            background: #000;
+            border-top: 1px solid #1a1a1a;
+            padding: 60px 5%;
             text-align: center;
-            background-color: #240046;
-            color: #C77DFF;
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-content p {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .footer-highlight {
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero {
+                padding: 100px 5%;
+            }
+
+            .hero-shapes {
+                width: 300px;
+                height: 300px;
+            }
+
+            .tech-stack {
+                gap: 10px;
+            }
+
+            .experience-grid,
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card-modern,
+            .experience-card,
+            .project-card {
+                padding: 30px;
+            }
         }
     </style>
 </head>
-
 <body>
+    <div class="grid-bg"></div>
 
-    <header>
-        <h1>Portfólio de Análise de Dados</h1>
-        <p>Ana Beatriz • Python • SQL • Power BI • Machine Learning</p>
-    </header>
-
-    <section>
-        <h2>Sobre mim</h2>
-        <p>
-            Sou analista de dados com experiência em Python, SQL, visualização de dados e dashboards.
-            Tenho paixão por transformar dados em insights estratégicos e criar soluções eficientes.
-        </p>
-    </section>
-
-    <section>
-        <h2>Projetos</h2>
-
-        <div class="projetos">
-
-            <div class="card">
-                <h3>📊 Projeto 1 — Dashboard de Vendas</h3>
-                <p>Análise completa de vendas usando Power BI, incluindo métricas de faturamento, clientes e produtos.</p>
-                <a class="btn" href="projetos/vendas.html">Ver Projeto</a>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-shapes">
+            <div class="shape"></div>
+            <div class="shape"></div>
+            <div class="shape"></div>
+        </div>
+        
+        <div class="hero-content">
+            <span class="label">Portfólio</span>
+            <h1>Anna Beatriz<br>Cientista de Dados</h1>
+            <p class="hero-desc">
+                Transformando dados brutos em soluções estratégicas e resultados mensuráveis para o negócio
+            </p>
+            
+            <div class="tech-stack">
+                <div class="tech-badge">Python</div>
+                <div class="tech-badge">SQL</div>
+                <div class="tech-badge">Power BI</div>
+                <div class="tech-badge">Machine Learning</div>
             </div>
-
-            <div class="card">
-                <h3>🤖 Projeto 2 — Previsão de Demanda</h3>
-                <p>Modelo de machine learning para prever demanda semanal utilizando Python e scikit-learn.</p>
-                <a class="btn" href="#">Ver Projeto</a>
-            </div>
-
-            <div class="card">
-                <h3>📈 Projeto 3 — SQL Exploratório</h3>
-                <p>Exploração de base de dados com queries avançadas, joins, windows functions e CTEs.</p>
-                <a class="btn" href="#">Ver Projeto</a>
-            </div>
-
         </div>
     </section>
 
+    <!-- Content -->
+    <div class="container">
+
+        <!-- Sobre Mim -->
+        <section>
+            <div class="section-number">01 — PERFIL</div>
+            <h2>Sobre mim</h2>
+            <div class="card-modern">
+                <p>
+                    Como Cientista de Dados, dedico-me a um único objetivo: transformar dados brutos e complexos em soluções estratégicas e resultados mensuráveis para o negócio. Sou uma profissional orientada para resultados, com forte visão analítica e um compromisso com o aprendizado contínuo.
+                </p>
+            </div>
+
+            <div class="experience-grid">
+                <div class="experience-card">
+                    <div class="experience-icon">🚀</div>
+                    <div class="experience-title">Otimização e Crescimento</div>
+                    <div class="experience-text">
+                        Experiência em E-commerce e Marketing gerando insights acionáveis para decisões estratégicas. Automatização de integrações via N8N, Make e Python, modelagem em PostgreSQL e Firebase, e tagueamentos via GTM para análise consistente no GA4.
+                    </div>
+                </div>
+
+                <div class="experience-card">
+                    <div class="experience-icon">🛡️</div>
+                    <div class="experience-title">Governança e Confiabilidade</div>
+                    <div class="experience-text">
+                        Atuação em Gestão de Riscos focada em acurácia e visibilidade. Desenvolvimento de views no SQL Server, gestão completa de BI com Power BI (DAX Avançado, Linguagem M, RLS), e acompanhamento de operações para identificação de gargalos.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Projetos -->
+        <section>
+            <div class="section-number">02 — PORTIFÓLIO</div>
+            <h2>Projetos de Análise de Dados</h2>
+
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-icon"> <img src="./projetos/data_analysis/checklist_veiculos/img/img-checklist_veiculo.png" alt=""></div>
+                    <h3>Dashboard de Check list Veícular</h3>
+                    <p>Acompanhamento da liberação de veículos no Power BI.</p>
+                    <a class="btn" href="projetos/data_analysis/checklist_veiculos/checklist_veiculos.html">Ver Projeto</a>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-icon">🤖</div>
+                    <h3>Previsão de Demanda</h3>
+                    <p>Modelo de machine learning para prever demanda semanal utilizando Python e scikit-learn.</p>
+                    <a class="btn" href="#">Ver Projeto</a>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-icon">📈</div>
+                    <h3>SQL Exploratório</h3>
+                    <p>Exploração de base de dados com queries avançadas, joins, windows functions e CTEs.</p>
+                    <a class="btn" href="#">Ver Projeto</a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
     <footer>
-        © 2025 • Desenvolvido por Ana Beatriz
+        <div class="footer-content">
+            <p>© 2025 — Portfólio de Projetos</p>
+            <p>Desenvolvido por <span class="footer-highlight">Anna Beatriz Beserra</span></p>
+        </div>
     </footer>
 
 </body>
