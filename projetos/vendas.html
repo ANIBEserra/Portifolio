@@ -365,15 +365,6 @@
             transform: translate(-50%, -50%);
             pointer-events: none;
         }
-        .iframe-box{
-            max-width: 500px;
-            min-height: auto;
-        }
-
-         .iframe-box > iframe{
-             width: 100%;
-             min-height: auto;
-         }
         
 
         .result-section h3 {
@@ -394,6 +385,18 @@
             position: relative;
             z-index: 1;
         }
+
+        .iframe-box {
+            width: 100%;
+            height: 75vh;
+            background-color: azure;
+        }
+    
+        .iframe-box > iframe {
+            width: 100%;
+            height: 100%;
+        }
+
 
         /* Footer */
         footer {
