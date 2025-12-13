@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto IA - Transcrição e Análise de Sentimentos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;600&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 5%;
+        }
+
+        /* Header */
+        header {
+            padding: 30px 0 60px;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.2);
+            margin-bottom: 60px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .project-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #00ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 25px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 2px solid #00ff88;
+            color: #00ff88;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: #00ff88;
+            color: #000;
+            transform: translateX(-5px);
+        }
+
+        /* Progress Overview */
+        .progress-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        .progress-card {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00ff88, transparent);
+        }
+
+        .progress-label {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .progress-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00cc6f);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        /* Phases Section */
+        .phases-section {
+            margin-bottom: 80px;
+        }
+
+        .section-header {
+            margin-bottom: 40px;
+        }
+
+        .section-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            color: #00ff88;
+            font-weight: 600;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.8rem, 4vw, 2.8rem);
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .phase-card {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 40px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .phase-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: #00ff88;
+        }
+
+        .phase-card.completed {
+            border-color: rgba(0, 255, 136, 0.3);
+        }
+
+        .phase-card.in-progress {
+            border-color: rgba(255, 193, 7, 0.3);
+        }
+
+        .phase-card.in-progress::before {
+            background: #ffc107;
+        }
+
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .phase-info h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .phase-dates {
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .phase-status {
+            padding: 8px 18px;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .status-completed {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+
+        .status-in-progress {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+
+        .status-pending {
+            background: rgba(255, 255, 255, 0.1);
+            color: #888;
+            border: 1px solid #444;
+        }
+
+        /* Tasks List */
+        .tasks-list {
+            margin-top: 25px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .task-item:hover {
+            background: rgba(0, 255, 136, 0.05);
+            transform: translateX(5px);
+        }
+
+        .task-item.completed {
+            opacity: 0.6;
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            min-width: 24px;
+            border: 2px solid #00ff88;
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            background: transparent;
+            transition: all 0.3s ease;
+        }
+
+        .task-checkbox.checked {
+            background: #00ff88;
+        }
+
+        .task-checkbox.checked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #000;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .task-item.completed .task-title {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .task-description {
+            font-size: 0.9rem;
+            color: #aaa;
+            line-height: 1.5;
+        }
+
+        /* Deliverables Section */
+        .deliverables-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .deliverable-card {
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05), transparent);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .deliverable-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 136, 0.4);
+            box-shadow: 0 15px 30px rgba(0, 255, 136, 0.1);
+        }
+
+        .deliverable-icon {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+
+        .deliverable-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .deliverable-desc {
+            font-size: 0.9rem;
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        /* Tech Stack */
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .tech-badge {
+            padding: 8px 16px;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 100px;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .progress-overview {
+                grid-template-columns: 1fr;
+            }
+
+            .phase-header {
+                flex-direction: column;
+            }
+
+            .deliverables-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <div>
+                    <h1 class="project-title">Sistema IA - Transcrição e Análise de Sentimentos</h1>
+                    <p style="color: #888; margin-top: 10px;">Workana • R$ 500-1.400 • 4-6 semanas</p>
+                </div>
+                <a href="../../../index.html" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Portfólio
+                </a>
+            </div>
+        </header>
+
+        <!-- Progress Overview -->
+        <div class="progress-overview">
+            <div class="progress-card">
+                <div class="progress-label">Progresso Geral</div>
+                <div class="progress-value" id="overall-progress">0%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="overall-progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="progress-card">
+                <div class="progress-label">Tarefas Concluídas</div>
+                <div class="progress-value" id="tasks-completed">0/0</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="tasks-progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="progress-card">
+                <div class="progress-label">Fases Completas</div>
+                <div class="progress-value" id="phases-completed">0/5</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="phases-progress-bar" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="progress-card">
+                <div class="progress-label">Tempo Restante</div>
+                <div class="progress-value" style="font-size: 2rem;">4-6 sem</div>
+                <div style="color: #888; font-size: 0.85rem; margin-top: 10px;">Prazo estimado</div>
+            </div>
+        </div>
+
+        <!-- Phases Section -->
+        <section class="phases-section">
+            <div class="section-header">
+                <div class="section-number">CRONOGRAMA</div>
+                <h2 class="section-title">Fases do Projeto</h2>
+            </div>
+
+            <!-- FASE 1 -->
+            <div class="phase-card" data-phase="1">
+                <div class="phase-header">
+                    <div class="phase-info">
+                        <h3>Fase 1 - Planejamento e Arquitetura</h3>
+                        <div class="phase-dates">📅 Semana 1 • 5 tarefas</div>
+                    </div>
+                    <span class="phase-status status-pending">Pendente</span>
+                </div>
+
+                <div class="tasks-list">
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Definição da arquitetura do sistema</div>
+                            <div class="task-description">Desenhar arquitetura completa com fluxo de dados, componentes e integrações</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Seleção e validação de ferramentas</div>
+                            <div class="task-description">Testar e validar Whisper, HuggingFace, n8n, Supabase e Evolution API</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Configuração do ambiente de desenvolvimento</div>
+                            <div class="task-description">Setup Docker, Python, Node.js, PostgreSQL e ferramentas de IA</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Criação do repositório Git</div>
+                            <div class="task-description">Estruturar repositório com branches, README e .gitignore</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Documentação técnica inicial</div>
+                            <div class="task-description">Criar docs de arquitetura, diagrama de fluxo e especificações técnicas</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 2 -->
+            <div class="phase-card" data-phase="2">
+                <div class="phase-header">
+                    <div class="phase-info">
+                        <h3>Fase 2 - Desenvolvimento do Core - Transcrição</h3>
+                        <div class="phase-dates">📅 Semanas 2-3 • 5 tarefas</div>
+                    </div>
+                    <span class="phase-status status-pending">Pendente</span>
+                </div>
+
+                <div class="tasks-list">
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Implementação do módulo de transcrição Whisper</div>
+                            <div class="task-description">Integrar OpenAI Whisper (modelo medium/large) com suporte a PT-BR</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Configuração Docker para containerização</div>
+                            <div class="task-description">Criar Dockerfile e docker-compose para o serviço de transcrição</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Criação de filas de processamento (n8n)</div>
+                            <div class="task-description">Setup workflows n8n para gerenciar fila de áudios e callbacks</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Desenvolvimento da API REST básica</div>
+                            <div class="task-description">Criar endpoints FastAPI para upload, processamento e consulta</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Testes de precisão com diferentes áudios</div>
+                            <div class="task-description">Testar com sotaques variados, ruídos e qualidades de áudio</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 3 -->
+            <div class="phase-card" data-phase="3">
+                <div class="phase-header">
+                    <div class="phase-info">
+                        <h3>Fase 3 - Análise de Sentimentos</h3>
+                        <div class="phase-dates">📅 Semanas 3-4 • 5 tarefas</div>
+                    </div>
+                    <span class="phase-status status-pending">Pendente</span>
+                </div>
+
+                <div class="tasks-list">
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Implementação do modelo de análise de sentimentos</div>
+                            <div class="task-description">Integrar modelo BERT-PT com classificação positivo/negativo/neutro</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Identificação de múltiplos participantes (diarização)</div>
+                            <div class="task-description">Implementar Pyannote.audio para separar falantes</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Integração com módulo de transcrição</div>
+                            <div class="task-description">Pipeline completo: áudio → transcrição → diarização → sentimentos</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Criação do banco de dados (Supabase)</div>
+                            <div class="task-description">Modelar schema, criar tabelas e configurar RLS</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Testes de análise com conversas reais</div>
+                            <div class="task-description">Validar acurácia em diferentes contextos e emoções</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 4 -->
+            <div class="phase-card" data-phase="4">
+                <div class="phase-header">
+                    <div class="phase-info">
+                        <h3>Fase 4 - Interface e Automação</h3>
+                        <div class="phase-dates">📅 Semanas 4-5 • 5 tarefas</div>
+                    </div>
+                    <span class="phase-status status-pending">Pendente</span>
+                </div>
+
+                <div class="tasks-list">
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Desenvolvimento da interface web (dashboard)</div>
+                            <div class="task-description">React + Vite com upload, visualização e gráficos de sentimentos</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Configuração de workflows no n8n</div>
+                            <div class="task-description">Automatizar recepção, processamento e notificações</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Integração com WhatsApp (Evolution API)</div>
+                            <div class="task-description">Receber áudios automaticamente e processar em background</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Sistema de notificações</div>
+                            <div class="task-description">Alertas de processamento completo e erros</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Painéis de visualização de resultados</div>
+                            <div class="task-description">Gráficos interativos com Recharts para análise de sentimentos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 5 -->
+            <div class="phase-card" data-phase="5">
+                <div class="phase-header">
+                    <div class="phase-info">
+                        <h3>Fase 5 - Testes, Otimização e Documentação</h3>
+                        <div class="phase-dates">📅 Semanas 5-6 • 5 tarefas</div>
+                    </div>
+                    <span class="phase-status status-pending">Pendente</span>
+                </div>
+
+                <div class="tasks-list">
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Testes de carga e performance</div>
+                            <div class="task-description">Testar com múltiplos áudios simultâneos e medir tempos</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Otimização de processamento</div>
+                            <div class="task-description">Melhorar performance do pipeline e reduzir uso de memória</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Documentação completa do sistema</div>
+                            <div class="task-description">Docs técnica, API, arquitetura e fluxos de dados</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Vídeos tutoriais de uso</div>
+                            <div class="task-description">Gravar demonstrações de instalação, uso e troubleshooting</div>
+                        </div>
+                    </div>
+
+                    <div class="task-item" onclick="toggleTask(this)">
+                        <div class="task-checkbox"></div>
+                        <div class="task-content">
+                            <div class="task-title">Ajustes finais baseados em feedback</div>
+                            <div class="task-description">Implementar melhorias e corrigir bugs reportados</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deliverables Section -->
+        <section class="phases-section">
+            <div class="section-header">
+                <div class="section-number">ENTREGÁVEIS</div>
+                <h2 class="section-title">Principais Entregas</h2>
+            </div>
+
+            <div class="deliverables-grid">
+                <div class="deliverable-card">
+                    <div class="deliverable-icon">📦</div>
+                    <div class="deliverable-title">Código Fonte Completo</div>
+                    <div class="deliverable-desc">Repositório Git com backend, frontend, workflows n8n, Docker e documentação</div>
+                </div>
+
+                <div class="deliverable-card">
+                    <div class="deliverable-icon">🔌</div>
+                    <div class="deliverable-title">API REST Funcional</div>
+                    <div class="deliverable-desc">Endpoints para transcrição, análise de sentimentos e consultas com documentação Swagger</div>
+                </div>
+
+                <div class="deliverable-card">
+                    <div class="deliverable-icon">🖥️</div>
+                    <div class="deliverable-title">Interface Web Dashboard</div>
+                    <div class="deliverable-desc">Dashboard React para upload, visualização e análise de áudios com gráficos interativos</div>
+                </div>
+
+                <div class="deliverable-card">
+                    <div class="deliverable-icon">💬</div>
+                    <div class="deliverable-title">Integração WhatsApp</div>
+                    <div class="deliverable-desc">Recepção automática de áudios via Evolution API com processamento em background</div>
+                </div>
+
+                <div class="deliverable-card">
+                    <div class="deliverable-icon">📚</div>
+                    <div class="deliverable-title">

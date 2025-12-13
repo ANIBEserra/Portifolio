@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto IA - Transcrição e Análise</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 430px;
+            margin: 0 auto;
+            background: #fff;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .header {
+            padding: 20px 24px;
+            background: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .header-title {
+            font-size: 1.1rem;
+            color: #888;
+            font-weight: 500;
+        }
+
+        .back-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f5f7;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #e8e8ea;
+        }
+
+        .notification-btn {
+            position: relative;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #f5f5f7;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .notification-dot {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 8px;
+            height: 8px;
+            background: #7c3aed;
+            border-radius: 50%;
+            border: 2px solid #fff;
+        }
+
+        /* Content */
+        .content {
+            padding: 24px;
+            padding-bottom: 100px;
+        }
+
+        /* Welcome Card */
+        .welcome-card {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
+        .welcome-text h2 {
+            font-size: 0.9rem;
+            color: #888;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .welcome-text h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1d1d1f;
+        }
+
+        /* Progress Card */
+        .progress-card {
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 200px;
+            height: 200px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .progress-header {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .progress-header h3 {
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.5;
+            max-width: 60%;
+        }
+
+        .menu-dots {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .progress-footer {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .view-task-btn {
+            padding: 12px 24px;
+            background: #fff;
+            border: none;
+            border-radius: 12px;
+            color: #7c3aed;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-task-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .circular-progress {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .circular-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .circular-progress circle {
+            fill: none;
+            stroke-width: 8;
+        }
+
+        .progress-bg {
+            stroke: rgba(255,255,255,0.2);
+        }
+
+        .progress-fill {
+            stroke: #fff;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s;
+        }
+
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* Section Headers */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1d1d1f;
+        }
+
+        .section-count {
+            color: #888;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Task Cards (In Progress) */
+        .tasks-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .task-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .task-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .task-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+        }
+
+        .task-icon.pink {
+            background: #fce7f3;
+            color: #ec4899;
+        }
+
+        .task-icon.purple {
+            background: #ede9fe;
+            color: #a855f7;
+        }
+
+        .task-label {
+            font-size: 0.75rem;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .task-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #1d1d1f;
+            line-height: 1.4;
+        }
+
+        .task-progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .task-progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .task-progress-fill.blue {
+            background: #3b82f6;
+        }
+
+        .task-progress-fill.orange {
+            background: #f97316;
+        }
+
+        /* Task Groups */
+        .task-groups {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .group-card {
+            background: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .group-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .group-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .group-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .group-icon.pink {
+            background: #fce7f3;
+            color: #ec4899;
+        }
+
+        .group-icon.purple {
+            background: #ede9fe;
+            color: #a855f7;
+        }
+
+        .group-icon.orange {
+            background: #ffedd5;
+            color: #f97316;
+        }
+
+        .group-icon.yellow {
+            background: #fef3c7;
+            color: #eab308;
+        }
+
+        .group-info h4 {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .group-info p {
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .group-progress {
+            position: relative;
+            width: 60px;
+            height: 60px;
+        }
+
+        .group-progress svg {
+            transform: rotate(-90deg);
+        }
+
+        .group-progress circle {
+            fill: none;
+            stroke-width: 6;
+        }
+
+        .group-progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .group-progress-text.pink { color: #ec4899; }
+        .group-progress-text.purple { color: #a855f7; }
+        .group-progress-text.orange { color: #f97316; }
+        .group-progress-text.yellow { color: #eab308; }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 430px;
+            width: 100%;
+            background: #fff;
+            padding: 16px 24px;
+            box-shadow: 0 -4px 16px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .nav-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.3s;
+        }
+
+        .nav-item.active .nav-icon {
+            background: #7c3aed;
+            color: #fff;
+        }
+
+        .nav-item:not(.active) .nav-icon {
+            color: #888;
+        }
+
+        .nav-item:not(.active):hover .nav-icon {
+            background: #f5f5f7;
+        }
+
+        .add-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            border: none;
+            color: #fff;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+            transition: all 0.3s;
+            margin-top: -32px;
+        }
+
+        .add-btn:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        /* PAGE 2 - TASKS PAGE */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .tasks-page-header {
+            padding: 20px 24px;
+            background: #fff;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .tasks-page-title {
+            text-align: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #1d1d1f;
+        }
+
+        .date-selector {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 20px 0;
+            margin: 0 -24px;
+            padding-left: 24px;
+            padding-right: 24px;
+        }
+
+        .date-selector::-webkit-scrollbar {
+            display: none;
+        }
+
+        .date-item {
+            min-width: 70px;
+            padding: 16px 12px;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #fff;
+        }
+
+        .date-item.active {
+            background: #7c3aed;
+            color: #fff;
+        }
+
+        .date-item:not(.active) {
+            color: #888;
+        }
+
+        .date-month {
+            font-size: 0.75rem;
+            margin-bottom: 4px;
+        }
+
+        .date-day {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .date-weekday {
+            font-size: 0.75rem;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 12px;
+            padding: 0 24px;
+            margin-bottom: 24px;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .filter-tab.active {
+            background: #7c3aed;
+            color: #fff;
+        }
+
+        .filter-tab:not(.active) {
+            background: #f5f5f7;
+            color: #888;
+        }
+
+        .task-list {
+            padding: 0 24px;
+            padding-bottom: 100px;
+        }
+
+        .task-list-item {
+            background: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .task-list-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .task-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+
+        .task-list-title-area {
+            flex: 1;
+        }
+
+        .task-list-category {
+            font-size: 0.8rem;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .task-list-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #1d1d1f;
+            margin-bottom: 8px;
+        }
+
+        .task-time {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+
+        .task-status-badge {
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .status-done {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+
+        .status-progress {
+            background: #fed7aa;
+            color: #f97316;
+        }
+
+        .status-todo {
+            background: #dbeafe;
+            color: #3b82f6;
+        }
+
+        /* PAGE 3 - ADD PROJECT */
+        .add-project-page {
+            padding: 0 24px;
+            padding-bottom: 100px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s;
+            background: #fff;
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23888' d='M8 10.5l-4-4h8z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 16px center;
+            cursor: pointer;
+        }
+
+        .date-input-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            border: 1px solid #e5e5e5;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .date-input-group:hover {
+            border-color: #7c3aed;
+        }
+
+        .date-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #ede9fe;
+            color: #7c3aed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .date-text {
+            font-size: 1rem;
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+
+        .logo-upload {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border: 2px dashed #e5e5e5;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logo-upload:hover {
+            border-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.02);
+        }
+
+        .logo-preview {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo-info h4 {
+            font-size: 1rem;
+            color: #1d1d1f;
+            margin-bottom: 4px;
+        }
+
+        .change-logo-btn {
+            background: none;
+            border: none;
+            color: #7c3aed;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+            color: #fff;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 32px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(124, 58, 237, 0.3);
+        }
+
+        @media (max-width: 430px) {
+            .app-container {
+                max-width: 100%;
+            }
+
+            .bottom-nav {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- PAGE 1: HOME -->
+        <div class="page active" id="page-home">
+            <div class="header">
+                <a href="../../index.html" class="back-btn" title="Voltar ao portfólio">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <span class="header-title">home</span>
+                <button class="notification-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-dot"></span>
+                </button>
+            </div>
+
+            <div class="content">
+                <div class="welcome-card">
+                    <div class="avatar">AB</div>
+                    <div class="welcome-text">
+                        <h2>Hello!</h2>
+                        <h1>Anna Beatriz</h1>
+                    </div>
+                </div>
+
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <h3>Your today's task<br>almost done!</h3>
+                        <button class="menu-dots">⋯</button>
+                    </div>
+                    <div class="progress-footer">
+                        <button class="view-task-btn" onclick="navigateTo('page-tasks')">View Task</button>
+                        <div class="circular-progress">
+                            <svg width="80" height="80">
+                                <circle class="progress-bg" cx="40" cy="40" r="36"></circle>
+                                <circle class="progress-fill" cx="40" cy="40" r="36" 
+                                    stroke-dasharray="226" stroke-dashoffset="45"></circle>
+                            </svg>
+                            <span class="progress-text">85%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <h2 class="section-title">In Progress</h2>
+                    <span class="section-count">6</span>
+                </div>
+
+                <div class="tasks-grid">
+                    <div class="task-card">
+                        <div class="task-icon pink">📄</div>
+                        <p class="task-label">Office Project</p>
+                        <h3 class="task-name">Grocery shopping app design</h3>
+                        <div class="task-progress-bar">
+                            <div class="task-progress-fill blue" style="width: 60%"></div>
+                        </div>
+                    </div>
+
+                    <div class="task-card">
+                        <div class="task-icon purple">🎨</div>
+                        <p class="task-label">Personal Project</p>
+                        <h3 class="task-name">Uber Eats redesign challenge</h3>
+                        <div class="task-progress-bar">
+                            <div class="task-progress-fill orange" style="width: 80%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <h2 class="section-title">Task Groups</h2>
+                    <span class="section-count">4</span>
+                </div>
+
+                <div class="task-groups">
+                    <div class="group-card" onclick="navigateTo('page-tasks')">
+                        <div class="group-left">
+                            <div class="group-icon pink">📄</div>
+                            <div class="group-info">
+                                <h4>Office Project</h4>
+                                <p>23 Tasks</p>
+                            </div>
+                        </div>
+                        <div class="group-progress">
+                            <svg width="60" height="60">
+                                <circle cx="30" cy="30" r="27" stroke="#fce7f3" stroke-width="6"></circle>
+                                <circle cx="30" cy="30" r="27" stroke="#ec4899" stroke-width="6"
+                                    stroke-dasharray="170" stroke-dashoffset="51" transform="rotate(-90 30 30)"></circle>
+                            </svg>
+                            <span class="group-progress-text pink">70%</span>
+                        </div>
+                    </div>
+
+                    <div class="group-card" onclick="navigateTo('page-tasks')">
+                        <div class="group-left">
+                            <div class="group-icon purple">🎯</div>
+                            <div class="group-info">
+                                <h4>Personal Project</h4>
+                                <p>50 Tasks</p>
+                            </div>
+                        </div>
+                        <div class="group-progress">
+                            <svg width="60" height="60">
+                                <circle cx="30" cy="30" r="27" stroke="#ede9fe" stroke-width="6"></circle>
+                                <circle cx="30" cy="30" r="27" stroke="#a855f7" stroke-width="6"
+                                    stroke-dasharray="170" stroke-dashoffset="81.6" transform="rotate(-90 30 30)"></circle>
+                            </svg>
+                            <span class="group-progress-text purple">52%</span>
+                        </div>
+                    </div>
+
+                    <div class="group-card" onclick="navigateTo('page-tasks')">
+                        <div class="group-left">
+                            <div class="group-icon orange">📚</div>
+                            <div class="group-info">
+                                <h4>Daily Study</h4>
+                                <p>30 Tasks</p>
+                            </div>
+                        </div>
+                        <div class="group-progress">
+                            <svg width="60" height="60">
+                                <circle cx="30" cy="30" r="27" stroke="#ffedd5" stroke-width="6"></circle>
+                                <circle cx="30" cy="30" r="27" stroke="#f97316" stroke-width="6"
+                                    stroke-dasharray="170" stroke-dashoffset="39.1" transform="rotate(-90 30 30)"></circle>
+                            </svg>
+                            <span class="group-progress-text orange">87%</span>
+                        </div>
+                    </div>
+
+                    <div class="group-card" onclick="navigateTo('page-tasks')">
+                        <div class="group-left">
+                            <div class="group-icon yellow">✅</div>
+                            <div class="group-info">
+                                <h4>Daily Study 2</h4>
+                                <p>30 Tasks</p>
+                            </div>
+                        </div>
+                        <div class="group-progress">
+                            <svg width="60" height="60">
+                                <circle cx="30" cy="30" r="27" stroke="#fef3c7" stroke-width="6"></circle>
+                                <circle cx="30" cy="30" r="27" stroke="#eab308" stroke-width="6"
+                                    stroke
