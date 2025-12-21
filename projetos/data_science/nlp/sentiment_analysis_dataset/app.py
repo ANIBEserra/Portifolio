@@ -5,6 +5,7 @@ import nltk
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import WordPunctTokenizer
+import os
 
 st.markdown("""
 <style>
@@ -84,10 +85,14 @@ st.caption("Record a short comment about a pop artist to see its sentiment.")
 nltk.download('stopwords')
 
 # ------------------ CARREGAR MODELOS ------------------
+# Caminho base do arquivo app.py
+BASE_DIR = os.path.dirname(__file__)
+
+# Carregar modelos
 @st.cache_resource
 def load_models():
-    clf_model = joblib.load('sentiment_model.pkl')
-    vectorizer = joblib.load('vectorizer.pkl')
+    clf_model = joblib.load(os.path.join(BASE_DIR, 'sentiment_model.pkl'))
+    vectorizer = joblib.load(os.path.join(BASE_DIR, 'vectorizer.pkl'))
     stt_model = whisper.load_model("base")
     return clf_model, vectorizer, stt_model
 
