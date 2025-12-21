@@ -1,0 +1,1 @@
+[![Run on Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://anibeserra-datascience-nlp-sentiment-analysis.streamlit.app/?embed_options=light_theme,show_colored_line,dark_theme)
