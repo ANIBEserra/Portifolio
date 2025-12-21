@@ -7,7 +7,9 @@ matplotlib
 streamlit
 openai-whisper
 Unidecode
-streamlit-webrtc 
+streamlit-webrtc
 soundfile
 librosa
+torch
+
 
