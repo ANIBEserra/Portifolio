@@ -119,21 +119,20 @@ st.markdown("🎤 Click below to record a short comment (in English) about a pop
 audio_file = st.audio_input("Record here:")
 
 if audio_file:
-    audio_bytes = audio_file.read()
-    audio_io = io.BytesIO(audio_bytes)
+    with st.spinner("Processing audio and transcribing..."):
+        # Ler áudio direto dentro do spinner
+        audio_bytes = audio_file.read()
+        audio_io = io.BytesIO(audio_bytes)
+        audio_np, sr = sf.read(audio_io, dtype='float32')
 
-    # Ler áudio em memória com soundfile
-    audio_np, sr = sf.read(audio_io, dtype='float32')
+        # Mono
+        if audio_np.ndim > 1:
+            audio_np = audio_np.mean(axis=1)
 
-    # Se o áudio tiver mais de 1 canal (estéreo), converte para mono
-    if audio_np.ndim > 1:
-        audio_np = audio_np.mean(axis=1)
+        # Resample
+        audio_resampled = librosa.resample(audio_np, orig_sr=sr, target_sr=16000)
 
-    # Resample para 16kHz (Whisper requer)
-    audio_resampled = librosa.resample(audio_np, orig_sr=sr, target_sr=16000)
-
-    # ------------------ TRANSCRIÇÃO ------------------
-    with st.spinner("Transcribing audio..."):
+        # Transcrição
         result = stt.transcribe(audio_resampled)
         raw_text = result["text"]
 
