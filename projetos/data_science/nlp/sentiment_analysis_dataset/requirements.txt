@@ -1,0 +1,9 @@
+pandas
+joblib
+scikit-learn
+nltk
+seaborn
+matplotlib
+streamlit
+openai-whisper
+Unidecode
