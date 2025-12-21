@@ -116,8 +116,11 @@ audio_file = st.audio_input("Record here:")
 
 if audio_file:
     # Salvar áudio temporariamente
-    with open("temp_audio.wav", "wb") as f:
+    audio_path = os.path.join(BASE_DIR, "temp_audio.wav")
+    with open(audio_path, "wb") as f:
         f.write(audio_file.read())
+
+    result = stt.transcribe(audio_path)
 
     # ------------------ TRANSCRIÇÃO ------------------
     with st.spinner("Transcribing audio..."):
