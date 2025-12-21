@@ -331,7 +331,7 @@
             width: 100%;
             height: 80vh;
             background: rgba(20, 20, 20, 0.8);
-            border: 1px solid  rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(20, 20, 20, 0.8);
             border-radius: 20px;
             overflow: hidden;
             box-shadow: 0 10px 50px rgba(20, 20, 20, 0.8);
@@ -405,24 +405,24 @@
         <div class="hero-content">
             <div class="hero-h1">
                 <span class="label">Case Study</span>
-                <h1>Monitoramento<br>em Tempo Real</h1>
+                <h1>Sentiment Analysis<br>with Audio Input</h1>
                 <p class="hero-desc">
-                    Análise de checklists para operação de transporte
+                    Um app interativo que detecta sentimentos em comentários sobre artistas pop, a partir de gravações de áudio.
                 </p>
             </div>
 
             <div class="stats">
                 <div class="stat-item">
                     <div class="stat-number">Real-time</div>
-                    <div class="stat-label">Monitoramento</div>
+                    <div class="stat-label">Análise de Áudio</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number">100%</div>
-                    <div class="stat-label">Visibilidade</div>
+                    <div class="stat-label">Feedback Imediato</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number">Power BI & SQL Server</div>
-                    <div class="stat-label">Tecnologias</div>
+                    <div class="stat-number">Python| Openai-whisper, TF-IDF & Streamlit </div>
+                    <div class="stat-label">Tecnologias e Bibliotecas</div>
                 </div>
             </div>
         </div>
@@ -432,7 +432,7 @@
     <div class="timeline-container">
         <div class="timeline-title">
             <h2>Jornada do Projeto</h2>
-            <p>Do desafio à solução implementada</p>
+            <p>Do conceito à solução implementada</p>
         </div>
         
         <div class="timeline">
@@ -443,17 +443,16 @@
                 </div>
                 <div class="timeline-time">Início</div>
                 <div class="timeline-content">
-                    <span class="section-tag">01 — Desafio</span>
-                    <h3>O Problema de Negócio</h3>
+                    <span class="section-tag">01 — Entendimento</span>
+                    <h3>O Desafio</h3>
                     <p>
-                        O Cliente precisava visualizar em tempo real todos os checklists realizados em sua operação de transporte.
-                        Esses checklists avaliam itens de segurança dos veículos antes das viagens.
+                        Criar uma ferramenta que analise automaticamente o sentimento de comentários sobre artistas pop a partir de gravações de áudio.
                     </p>
                     <ul>
-                        <li>Análise imediata de aprovação/reprovação</li>
-                        <li>Identificar motivos de reprova</li>
-                        <li>Avaliar desempenho dos operadores</li>
-                        <li>Acompanhar tendências diárias</li>
+                        <li>Detectar sentimento positivo ou negativo</li>
+                        <li>Transformar áudio em texto para análise</li>
+                        <li>Fornecer feedback rápido ao usuário</li>
+                        <li>Manter interface simples e intuitiva</li>
                     </ul>
                 </div>
             </div>
@@ -468,14 +467,14 @@
                     <span class="section-tag">02 — Solução</span>
                     <h3>Arquitetura da Solução</h3>
                     <p>
-                        Foi construída uma visão completa em Power BI utilizando dados tratados no SQL Server.
+                        Utilizamos o Streamlit para interface interativa, Whisper para transcrição de áudio e modelos de Machine Learning para análise de sentimento.
                     </p>
                     <ul>
-                        <li>Taxa de Aprovação Geral</li>
-                        <li>Checklists Aprovados x Reprovados</li>
-                        <li>Tempo médio de execução</li>
-                        <li>Ranking dos operadores</li>
-                        <li>Série temporal hora a hora com UTC dinâmica</li>
+                        <li>Streamlit para front-end</li>
+                        <li>OpenAI Whisper para transcrição de áudio</li>
+                        <li>Scikit-learn para classificação de sentimentos</li>
+                        <li>NLP para pré-processamento do texto</li>
+                        <li>Feedback em tempo real ao usuário</li>
                     </ul>
                 </div>
             </div>
@@ -483,20 +482,20 @@
             <!-- Item 3 -->
             <div class="timeline-item">
                 <div class="timeline-dot">
-                    <i class="fa-solid fa-database"></i>
+                    <i class="fa-solid fa-microphone"></i>
                 </div>
                 <div class="timeline-time">Desenvolvimento</div>
                 <div class="timeline-content">
-                    <span class="section-tag">03 — Ingestão</span>
-                    <h3>Tratamento de Dados</h3>
+                    <span class="section-tag">03 — Implementação</span>
+                    <h3>Processamento de Áudio</h3>
                     <p>
-                        Criação de base espelhada no SQL Server com views otimizadas.
+                        Implementamos gravação de áudio no navegador e conversão direta para numpy array, evitando arquivos temporários.
                     </p>
                     <ul>
-                        <li>Cálculos de duração</li>
-                        <li>Categorização de status</li>
-                        <li>Extração dinâmica de itens reprovados</li>
-                        <li>Otimização de queries para performance</li>
+                        <li>Normalização e resampling do áudio</li>
+                        <li>Transcrição via Whisper em memória</li>
+                        <li>Pré-processamento do texto transcrito</li>
+                        <li>Classificação do sentimento</li>
                     </ul>
                 </div>
             </div>
@@ -506,18 +505,18 @@
                 <div class="timeline-dot">
                     <i class="fa-solid fa-chart-line"></i>
                 </div>
-                <div class="timeline-time">Implementação</div>
+                <div class="timeline-time">Testes</div>
                 <div class="timeline-content">
-                    <span class="section-tag">04 — Visualização</span>
-                    <h3>Camada de Consumo</h3>
+                    <span class="section-tag">04 — Validação</span>
+                    <h3>Testes e Feedback</h3>
                     <p>
-                        Conexão via DirectQuery para dados em tempo real.
+                        Realizamos testes para garantir precisão do modelo e experiência fluida do usuário no app.
                     </p>
                     <ul>
-                        <li>Tratamento de tabela de itens de reprovação</li>
-                        <li>Desenvolvimento de medidas DAX</li>
-                        <li>Tabela de Hora com UTCNOW()</li>
-                        <li>KPIs dinâmicos e interativos</li>
+                        <li>Comparação de predição com sentimentos reais</li>
+                        <li>Testes de interface com usuários</li>
+                        <li>Otimização do tempo de transcrição</li>
+                        <li>Correção de bugs e melhorias UX</li>
                     </ul>
                 </div>
             </div>
@@ -530,16 +529,15 @@
                 <div class="timeline-time">Resultado</div>
                 <div class="timeline-content">
                     <span class="section-tag">05 — Impacto</span>
-                    <h3>Sucesso Mensurável</h3>
+                    <h3>Sucesso do Projeto</h3>
                     <p>
-                        O dashboard final permitiu acompanhamento em tempo real da operação,
-                        facilitando decisões rápidas e aumentando o controle sobre falhas recorrentes nos veículos.
+                        O app final permite que qualquer usuário grave comentários e receba análise de sentimento instantânea, com interface intuitiva.
                     </p>
                     <ul>
-                        <li>Visibilidade completa dos dados</li>
-                        <li>Gestão de risco transformada</li>
-                        <li>Decisões baseadas em dados</li>
-                        <li>Redução de falhas operacionais</li>
+                        <li>Feedback em tempo real</li>
+                        <li>Transcrição precisa de áudio</li>
+                        <li>Classificação de sentimento eficiente</li>
+                        <li>Projeto escalável para mais artistas ou idiomas</li>
                     </ul>
                 </div>
             </div>
@@ -549,15 +547,13 @@
     <!-- Dashboard Section -->
     <div class="dashboard-section">
         <div class="dashboard-title">
-            <h2>Dashboard Interativo</h2>
-            <p>Explore a solução em ação</p>
+            <h2>Aplicação Interativa</h2>
+            <p>Experimente o app de análise de sentimento</p>
         </div>
-        <div class="iframe-box">
-            <iframe title="KPI LIBERACAO DE VEÍCULOS" 
-                    src="https://app.powerbi.com/view?r=eyJrIjoiZWRhZjAzZGYtZmY4Mi00YzU2LTg0ZTAtNDY3NzhlMjQ5YTY5IiwidCI6IjQ2MGRjMmQ5LWQ5NGMtNDZmNy05NzU1LTk5ZmVhMmY0ZDFhOSJ9&embedImagePlaceholder=true" 
-                    frameborder="0" 
-                    allowFullScreen="true">
-            </iframe>
+        <div class="iframe-box" style="display: flex; align-items: center; justify-content: center;">
+            <a href="https://anibeserra-datascience-nlp-sentiment-analysis.streamlit.app/" target="_blank" style="color: #00ff88; font-weight: bold; font-size: 1.2rem; text-decoration: none;">
+            Abra o Pop Artist Sentiment Analyzer
+            </a>
         </div>
     </div>
     
