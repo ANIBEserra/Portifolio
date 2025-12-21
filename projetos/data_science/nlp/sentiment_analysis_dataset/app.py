@@ -6,6 +6,10 @@ from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import WordPunctTokenizer
 import os
+import io
+import numpy as np
+import soundfile as sf
+import librosa
 
 st.markdown("""
 <style>
@@ -115,18 +119,24 @@ st.markdown("🎤 Click below to record a short comment (in English) about a pop
 audio_file = st.audio_input("Record here:")
 
 if audio_file:
-    # Salvar áudio temporariamente
-    audio_path = os.path.join(BASE_DIR, "temp_audio.wav")
-    with open(audio_path, "wb") as f:
-        f.write(audio_file.read())
+    audio_bytes = audio_file.read()
+    audio_io = io.BytesIO(audio_bytes)
 
-    result = stt.transcribe(audio_path)
+    # Ler áudio em memória com soundfile
+    audio_np, sr = sf.read(audio_io, dtype='float32')
+
+    # Se o áudio tiver mais de 1 canal (estéreo), converte para mono
+    if audio_np.ndim > 1:
+        audio_np = audio_np.mean(axis=1)
+
+    # Resample para 16kHz (Whisper requer)
+    audio_resampled = librosa.resample(audio_np, orig_sr=sr, target_sr=16000)
 
     # ------------------ TRANSCRIÇÃO ------------------
     with st.spinner("Transcribing audio..."):
-        result = stt.transcribe("temp_audio.wav")
+        result = stt.transcribe(audio_resampled)
         raw_text = result["text"]
-    
+
     st.subheader("Step 2: Detected Text")
     st.info(raw_text)
 
@@ -137,7 +147,6 @@ if audio_file:
 
         vectorized_text = tfidf.transform([processed_text])
         prediction = clf.predict(vectorized_text)
-
         sentiment = "Positive" if prediction[0] in ['positive', 1] else "Negative"
 
     # ------------------ RESULTADO ------------------
