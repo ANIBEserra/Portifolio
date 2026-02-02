@@ -4,6 +4,7 @@ scikit-learn
 nltk
 seaborn
 matplotlib
+stanza
 streamlit
 openai-whisper
 Unidecode
