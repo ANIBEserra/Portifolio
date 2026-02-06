@@ -35,7 +35,7 @@ jobs:
           cd projetos/data_engineering/credit_guard_ml_pipeline
           
           # Create a temporary key.json for Google Cloud authentication
-          echo "$GCP_KEY_JSON" > key.json
+          echo "$GCP_KEY_JSON" > key-google.json
           
           # Run the main script
           python scripts/main.py
