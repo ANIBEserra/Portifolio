@@ -23,6 +23,7 @@ services:
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
       - /var/run/docker.sock:/var/run/docker.sock # Essencial para o Airflow falar com o Docker
+      - ./key-google.json:/opt/airflow/key-google.json  # mapping the file created by GitHub into the Docker
     ports:
       - "8080:8080"
     environment:
@@ -41,6 +42,8 @@ services:
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./key-google.json:/opt/airflow/key-google.json  # mapping the file created by GitHub into the Docker
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - GOOGLE_APPLICATION_CREDENTIALS_JSON=${GCP_SA_KEY}
