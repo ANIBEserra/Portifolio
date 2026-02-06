@@ -1,0 +1,41 @@
+name: CNPJ Ingestion Pipeline
+
+# Configures when the pipeline should run
+on:
+  schedule:
+    # 11:50 UTC is 08:50 AM Brasília Time (BRT)
+    - cron: '50 11 * * *'
+  workflow_dispatch: # Enables the "Run workflow" button for manual testing
+
+jobs:
+  data-ingestion:
+    runs-on: ubuntu-latest # Uses a free GitHub Linux VM
+
+    steps:
+      # 1. Download the repository code to the GitHub runner
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # 2. Setup Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      # 3. Install required libraries using the requirements file
+      - name: Install Dependencies
+        run: |
+          pip install -r projetos/data_engineering/credit_guard_ml_pipeline/requirements.txt
+
+      # 4. The core task: Navigate to folder and run script
+      - name: Execute Ingestion Script
+        env:
+          GCP_KEY_JSON: ${{ secrets.GCP_SA_KEY }}
+        run: |
+          cd projetos/data_engineering/credit_guard_ml_pipeline
+          
+          # Create a temporary key.json for Google Cloud authentication
+          echo "$GCP_KEY_JSON" > key.json
+          
+          # Run the main script
+          python main.py

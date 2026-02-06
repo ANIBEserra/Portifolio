@@ -1,0 +1,9 @@
+pandas
+numpy
+matplotlib
+seaborn
+scikit-learn
+ipykernel
+requests
+google-cloud-storage
+pytz
