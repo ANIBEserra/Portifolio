@@ -31,7 +31,7 @@ jobs:
           GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }} 
         run: |
           cd projetos/data_engineering/credit_guard_ml_pipeline
-          docker-compose up -d
+          docker compose up -d
           echo "Waiting for Airflow..."
           sleep 120
 
@@ -56,4 +56,4 @@ jobs:
         if: always() # Ensures cleanup even if previous steps fail
         run: |
           cd projetos/data_engineering/credit_guard_ml_pipeline
-          docker-compose down
+          docker compose down
