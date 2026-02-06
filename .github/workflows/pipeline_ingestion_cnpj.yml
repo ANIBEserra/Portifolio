@@ -38,4 +38,4 @@ jobs:
           echo "$GCP_KEY_JSON" > key.json
           
           # Run the main script
-          python main.py
+          python scripts/main.py
