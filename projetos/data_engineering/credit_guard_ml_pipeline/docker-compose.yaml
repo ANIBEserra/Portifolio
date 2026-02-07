@@ -12,26 +12,35 @@ services:
       timeout: 5s
       retries: 5
 
+  # Adicionei o Init de volta porque ele é OBRIGATÓRIO na primeira vez que você sobe o banco
   airflow-init:
-    image: apache/airflow:2.7.1
-    user: root
-    environment:
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW_UID=0
-    command: db upgrade
-    depends_on:
-      postgres:
-        condition: service_healthy # <--- Ajustado (era service_health)
+      image: apache/airflow:2.7.1
+      user: root
+      environment:
+        - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+        - AIRFLOW_UID=0
+        # Variáveis que o Airflow usa para criar o user automaticamente no arranque
+        - _AIRFLOW_DB_UPGRADE=true
+        - _AIRFLOW_WWW_USER_CREATE=true
+        - _AIRFLOW_WWW_USER_USERNAME=airflow
+        - _AIRFLOW_WWW_USER_PASSWORD=airflow
+        - _AIRFLOW_WWW_USER_ROLE=Admin
+      # O comando abaixo inicializa o banco E cria o user antes de encerrar
+      command: >
+        bash -c "airflow db upgrade &&
+        airflow users create --username airflow --password airflow --firstname Beatriz --lastname Beserra --role Admin --email [EMAIL_ADDRESS]"
+      depends_on:
+        postgres:
+          condition: service_healthy
 
   airflow-webserver:
     image: apache/airflow:2.7.1
-    user: root # Recomendado para o GitHub Actions
     command: webserver
     depends_on:
       postgres:
         condition: service_healthy
       airflow-init:
-        condition: service_completed_successfully # <--- Garante que as tabelas existam antes de ligar
+        condition: service_completed_successfully # Espera o banco ser criado
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
@@ -40,27 +49,23 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - AIRFLOW_UID=0
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
 
   airflow-scheduler:
     image: apache/airflow:2.7.1
-    user: root # Recomendado para o GitHub Actions
     command: scheduler
     depends_on:
       postgres:
         condition: service_healthy
       airflow-init:
-        condition: service_completed_successfully # <--- Garante que as tabelas existam antes de ligar
+        condition: service_completed_successfully # Espera o banco ser criado
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - AIRFLOW_UID=0
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - GOOGLE_APPLICATION_CREDENTIALS_JSON=${GCP_SA_KEY}
