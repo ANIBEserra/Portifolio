@@ -1,21 +1,20 @@
-# Ignora logs e arquivos temporários do Airflow
+# Ignore airflow temp files
 logs/
 plugins/
 config/
 
-# Ignora dados que já foram processados localmente
+# Ignore locally processed data
 data/raw/
 
-# Ignora ambientes virtuais e cache do python
+# Ignore python virtual environment and cache
 .venv/
 venv/
 __pycache__/
 *.pyc
 
-# Ignora arquivos de controle de versão
+# Ignore git files
 .git/
 .gitignore
 
-# Ignora chaves se você quiser garantir que não fiquem presas na imagem
-# (Opcional, mas recomendado se você usa volumes)
-# key-google.json
+# Ignore keys to ensure they are not stored in the image
+key-google.json

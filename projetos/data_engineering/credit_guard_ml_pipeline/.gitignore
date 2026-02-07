@@ -1,4 +1,6 @@
-key-google.json
+# Ignore Google keys
+key.json
+*.json
 
 # Ignore Airflow logs
 logs/
@@ -7,10 +9,6 @@ logs/
 # Ignore Airflow local database files
 airflow.db
 airflow-webserver.pid
-
-# Ignore Google keys
-key.json
-*.json
 
 # Ignore Python virtual environment and Python cache
 __pycache__/

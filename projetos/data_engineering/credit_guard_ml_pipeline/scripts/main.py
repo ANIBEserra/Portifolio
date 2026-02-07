@@ -32,7 +32,7 @@ def buscar_cnpj(cnpj):
         response = requests.get(url)
         if response.status_code==200:
             data = response.json()
-            # Define o fuso horário de São Paulo
+            # Define timezone of São Paulo
             fuso_br = pytz.timezone('America/Sao_Paulo')
             today = datetime.now(fuso_br).strftime('%Y-%m-%d')
             file_path = os.path.join(RAW_DATA_PATH, f"{cnpj}_{today}.json")
@@ -40,11 +40,11 @@ def buscar_cnpj(cnpj):
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
             
-                print(f"Arquivo salvo com sucesso em: {file_path}")
+                print(f"File saved successfully at: {file_path}")
         else:
-            print(f"{response.status_code} para o cnpj {cnpj}")
+            print(f"{response.status_code} for cnpj {cnpj}")
     except Exception as e:
-        print(f"Falha na conexão {e}")
+        print(f"Connection failed {e}")
 
 
 def data_injection(file_name):

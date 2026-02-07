@@ -1,18 +1,18 @@
-# Usamos uma imagem leve do Python
+# Use a slim image of Python
 FROM python:3.9-slim
 
-# Define a pasta de trabalho dentro do container
+# Define a working directory inside the container
 WORKDIR /app
 
-# Instala as dependências primeiro (otimiza o cache do Docker)
+# Install dependencies first (optimizes Docker cache)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia todo o conteúdo do seu projeto para o container
+# Copy the entire project content to the container
 COPY . .
 
-# Garante que o Python consiga encontrar os módulos
+# Ensure Python can find the modules
 ENV PYTHONPATH="/app"
 
-# Comando para rodar o script
+# Command to run the script
 CMD ["python", "scripts/main.py"]
