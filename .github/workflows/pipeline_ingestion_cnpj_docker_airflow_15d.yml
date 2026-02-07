@@ -37,29 +37,16 @@ jobs:
         run: |
           cd projetos/data_engineering/credit_guard_ml_pipeline
           
-          # 1. Identificar o container do scheduler
+          # Espera essencial para o Airflow inicializar o banco antes do comando
+          echo "Waiting 90s for Airflow to warm up..."
+          sleep 90
+
           SCHEDULER_CONTAINER=$(docker ps --filter "name=airflow-scheduler" --format "{{.Names}}" | head -n 1)
           echo "Targeting container: $SCHEDULER_CONTAINER"
-
-          # 2. Loop de verificação (Wait-for-it)
-          echo "Waiting for Airflow database to be ready..."
-          MAX_RETRIES=30
-          COUNT=0
-          while ! docker exec $SCHEDULER_CONTAINER airflow db check; do
-            echo "Airflow is still initializing... ($((++COUNT))/$MAX_RETRIES)"
-            if [ $COUNT -ge $MAX_RETRIES ]; then
-              echo "Timeout: Airflow took too long to start."
-              exit 1
-            fi
-            sleep 10
-          done
-
-          echo "Airflow is READY! Triggering DAG now..."
           
-          # 3. Disparar a DAG
           docker exec $SCHEDULER_CONTAINER airflow dags trigger pipeline_ingestao_cnpj
           
-          echo "Monitoring logs for 60 seconds..."
+          echo "Monitoring logs..."
           sleep 60
           docker logs $SCHEDULER_CONTAINER --tail 100
 

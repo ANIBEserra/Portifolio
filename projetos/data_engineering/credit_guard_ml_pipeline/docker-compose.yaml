@@ -28,6 +28,7 @@ services:
     ports:
       - "8080:8080"
     environment:
+
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__LOAD_EXAMPLES=False #"Não mostre as DAGs de exemplo da comunidade, quero as minhas"
