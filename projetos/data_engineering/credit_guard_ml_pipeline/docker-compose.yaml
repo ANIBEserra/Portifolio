@@ -12,43 +12,55 @@ services:
       timeout: 5s
       retries: 5
 
+  airflow-init:
+    image: apache/airflow:2.7.1
+    user: root
+    environment:
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW_UID=0
+    command: db upgrade
+    depends_on:
+      postgres:
+        condition: service_healthy # <--- Ajustado (era service_health)
+
   airflow-webserver:
     image: apache/airflow:2.7.1
-    user: "root"  # <--- Adicionado para evitar crash de permissão no GitHub
+    user: root # Recomendado para o GitHub Actions
     command: webserver
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
-      - /var/run/docker.sock:/var/run/docker.sock # Essencial para o Airflow falar com o Docker
-      - ./key-google.json:/opt/airflow/key-google.json  # mapping the file created by GitHub into the Docker
-    ports:
-      - "8080:8080"
-    environment:
-
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
-      - AIRFLOW__CORE__LOAD_EXAMPLES=False #"Não mostre as DAGs de exemplo da comunidade, quero as minhas"
-      - AIRFLOW_UID=0 # <--- Garante que o usuário interno tenha permissão total
-
-  airflow-scheduler:
-    image: apache/airflow:2.7.1
-    user: "root" # <--- Adicionado para o scheduler não morrer ao tentar ler a DAG
-    command: scheduler
-    depends_on:
-      postgres:
-        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully # <--- Garante que as tabelas existam antes de ligar
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./key-google.json:/opt/airflow/key-google.json  # mapping the file created by GitHub into the Docker
+    ports:
+      - "8080:8080"
     environment:
+      - AIRFLOW_UID=0
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+
+  airflow-scheduler:
+    image: apache/airflow:2.7.1
+    user: root # Recomendado para o GitHub Actions
+    command: scheduler
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully # <--- Garante que as tabelas existam antes de ligar
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - AIRFLOW_UID=0
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - GOOGLE_APPLICATION_CREDENTIALS_JSON=${GCP_SA_KEY}
-      - AIRFLOW_UID=0 # <--- Garante que o scheduler consiga escrever logs
