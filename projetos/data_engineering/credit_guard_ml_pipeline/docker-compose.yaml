@@ -14,6 +14,7 @@ services:
 
   airflow-webserver:
     image: apache/airflow:2.7.1
+    user: "root"  # <--- Adicionado para evitar crash de permissão no GitHub
     command: webserver
     depends_on:
       postgres:
@@ -30,9 +31,11 @@ services:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__CORE__LOAD_EXAMPLES=False #"Não mostre as DAGs de exemplo da comunidade, quero as minhas"
+      - AIRFLOW_UID=0 # <--- Garante que o usuário interno tenha permissão total
 
   airflow-scheduler:
     image: apache/airflow:2.7.1
+    user: "root" # <--- Adicionado para o scheduler não morrer ao tentar ler a DAG
     command: scheduler
     depends_on:
       postgres:
@@ -47,3 +50,4 @@ services:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - GOOGLE_APPLICATION_CREDENTIALS_JSON=${GCP_SA_KEY}
+      - AIRFLOW_UID=0 # <--- Garante que o scheduler consiga escrever logs
