@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Study - CNPJ Data Pipeline</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=Inter:wght@300;400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+            overflow: hidden;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60%;
+            height: 100%;
+            background: radial-gradient(circle at 70% 50%, rgba(0, 255, 136, 0.15), transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero-h1 {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            margin-bottom: 50px;
+        }
+        
+        .label {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #00ff88;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #fff 0%, #00ff88 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-desc {
+            font-size: 1.3rem;
+            line-height: 1.6;
+            color: #aaa;
+            margin-bottom: 40px;
+            max-width: 600px;
+        }
+        
+        .stats {
+            display: flex;
+            gap: 50px;
+            margin-top: 50px;
+        }
+        
+        .stat-item {
+            border-left: 3px solid #00ff88;
+            padding-left: 20px;
+        }
+        
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #00ff88;
+            line-height: 1;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+        
+        .timeline-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 100px auto;
+            padding: 0 5%;
+        }
+        
+        .timeline-title {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+        
+        .timeline-title h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-title p {
+            font-size: 1.2rem;
+            color: #aaa;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 50px 0;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, transparent, #00ff88, transparent);
+            transform: translateX(-50%);
+        }
+        
+        .timeline-item {
+            position: relative;
+            margin-bottom: 100px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .timeline-item:nth-child(odd) {
+            flex-direction: row;
+        }
+        
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        
+        .timeline-dot {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: #0a0a0a;
+            border: 3px solid #00ff88;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        .timeline-dot i {
+            font-size: 1.5rem;
+            color: #00ff88;
+        }
+        
+        .timeline-time {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: -40px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #00ff88;
+            white-space: nowrap;
+        }
+        
+        .timeline-content {
+            width: calc(50% - 60px);
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            position: relative;
+            transition: all 0.4s ease;
+        }
+        
+        .timeline-item:nth-child(odd) .timeline-content {
+            margin-right: auto;
+            margin-left: 0;
+        }
+        
+        .timeline-item:nth-child(even) .timeline-content {
+            margin-left: auto;
+            margin-right: 0;
+        }
+        
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #00ff88, transparent);
+            border-radius: 20px 20px 0 0;
+        }
+        
+        .timeline-content:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 255, 136, 0.2);
+        }
+        
+        .timeline-content h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .timeline-content .section-tag {
+            display: inline-block;
+            font-size: 0.75rem;
+            color: #00ff88;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .timeline-content p {
+            font-size: 1.05rem;
+            line-height: 1.7;
+            color: #ccc;
+            margin-bottom: 20px;
+        }
+        
+        .timeline-content ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .timeline-content ul li {
+            padding: 8px 0;
+            padding-left: 25px;
+            position: relative;
+            color: #aaa;
+            font-size: 0.95rem;
+        }
+        
+        .timeline-content ul li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: #00ff88;
+            font-weight: 700;
+        }
+        
+        .dashboard-section {
+            position: relative;
+            max-width: 1400px;
+            margin: 100px auto;
+            padding: 0 5%;
+        }
+        
+        .dashboard-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .dashboard-title h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-title p {
+            font-size: 1.2rem;
+            color: #aaa;
+        }
+        
+        /*.iframe-box {
+            width: 100%;
+            height: 25vh;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid rgba(20, 20, 20, 0.8);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 50px rgba(20, 20, 20, 0.8);
+        }*/
+        
+        footer {
+            background: #000;
+            border-top: 1px solid #1a1a1a;
+            padding: 60px 5%;
+            text-align: center;
+            margin-top: 100px;
+        }
+        
+        .footer-content p {
+            color: #666;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        
+        .footer-highlight {
+            color: #00ff88;
+            font-weight: 600;
+        }
+        
+        @media (max-width: 968px) {
+            .timeline::before {
+                left: 30px;
+            }
+            .timeline-item {
+                flex-direction: column !important;
+                align-items: flex-start;
+                padding-left: 80px;
+            }
+            .timeline-dot {
+                left: 30px;
+                transform: translateX(0);
+            }
+            .timeline-time {
+                left: 30px;
+                transform: translateX(0);
+            }
+            .timeline-content {
+                width: 100%;
+                margin: 0 !important;
+            }
+            .stats {
+                flex-direction: column;
+                gap: 30px;
+            }
+        }
+
+        /* Pipeline Diagram Styling */
+        .pipeline-diagram {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            border-radius: 30px;
+            padding: 60px 40px;
+            margin-top: 30px;
+            position: relative;
+        }
+
+        .node-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            z-index: 2;
+        }
+
+        .node-icon {
+            width: 80px;
+            height: 80px;
+            background: #111;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #fff;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .highlight .node-icon {
+            border-color: #00ff88;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+        }
+
+        .node-label {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .node-sub {
+            font-size: 0.8rem;
+            color: #666;
+            margin-top: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .connector {
+            color: rgba(0, 255, 136, 0.3);
+            font-size: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(5px); }
+            100% { opacity: 0.3; transform: translateX(0); }
+        }
+
+        @media (max-width: 768px) {
+            .pipeline-diagram {
+                flex-direction: column;
+                gap: 40px;
+            }
+            .connector {
+                transform: rotate(90deg);
+                animation: pulse-down 2s infinite;
+            }
+        }
+
+        @keyframes pulse-down {
+            0% { opacity: 0.3; transform: rotate(90deg) translateX(0); }
+            50% { opacity: 1; transform: rotate(90deg) translateX(5px); }
+            100% { opacity: 0.3; transform: rotate(90deg) translateX(0); }
+        }   
+
+        /* --- Status and Logs from git actions --- */
+/* --- Estilo das Etapas do GitHub Actions --- */
+        .actions-console {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+
+        .action-step {
+            border-bottom: 1px solid #21262d;
+            color: #c9d1d9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+        }
+
+        .action-step summary {
+            padding: 12px 16px;
+            list-style: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .action-step summary:hover {
+            background: #161b22;
+        }
+
+        .action-step summary::-webkit-details-marker {
+            display: none;
+        }
+
+        /* Ícone de Check Verde */
+        .step-check {
+            color: #3fb950;
+            font-size: 0.9rem;
+        }
+
+        /* Seta lateral */
+        .step-arrow {
+            font-size: 0.7rem;
+            color: #8b949e;
+            transition: transform 0.2s;
+        }
+
+        .action-step[open] .step-arrow {
+            transform: rotate(90deg);
+        }
+
+        .step-duration {
+            margin-left: auto;
+            color: #8b949e;
+            font-size: 0.8rem;
+        }
+
+        /* Conteúdo do Log (dentro do expandir) */
+        .step-log {
+            background: #040d21;
+            padding: 15px 20px 15px 45px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: #d1d5db;
+            line-height: 1.5;
+            white-space: pre-wrap;
+        }
+        
+        .log-line { display: block; margin-bottom: 4px; }
+        .log-timestamp { color: #57ab5a; margin-right: 10px; }
+        /* --- Status and Logs from git actions --- */
+
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    
+    <section class="hero">
+        <div class="hero-bg"></div>
+        <div class="hero-content">
+            <div class="hero-h1">
+                <span class="label">Data Engineering Case Study</span>
+                <h1>Automated ELT<br>CNPJ Cloud Sync</h1>
+                <p class="hero-desc">
+                    A data pipeline that orchestrates the ingestion of registration data from BrazilAPI directly to a Bucket on Google Cloud.
+                </p>
+            </div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">Autonomous</div>
+                    <div class="stat-label">Daily Execution</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Hive-Style</div>
+                    <div class="stat-label">Partitioning</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">Python | GCP | GitHub Actions</div>
+                    <div class="stat-label">Main Tech Stack</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Data Pipeline Diagram -->
+    <div class="dashboard-section" style="margin-top: 50px;">
+        <div class="dashboard-title">
+            <h2>Pipeline Architecture</h2>
+        </div>
+        
+        <div class="pipeline-diagram">
+            <div class="node-container highlight">
+                <div class="node-icon"><i class="fa-solid fa-globe"></i></div>
+                <div class="node-label">Brazil API</div>
+                <div class="node-sub">Data Source</div>
+            </div>
+
+            <div class="connector"><i class="fa-solid fa-arrow-right"></i></div>
+
+            <div class="node-container">
+                <div class="node-icon"><i class="fa-solid fa-laptop-code"></i></div>
+                <div class="node-label">Local Dev</div>
+                <div class="node-sub">Local Repository and testing</div>
+            </div>
+
+            <div class="connector"><i class="fa-solid fa-arrow-right"></i></div>
+
+            <div class="node-container highlight">
+                <div class="node-icon"><i class="fa-brands fa-github"></i></div>
+                <div class="node-label">GitHub Actions</div>
+                <div class="node-sub">Orchestrator (Cron)</div>
+            </div>
+
+            <div class="connector"><i class="fa-solid fa-arrow-right"></i></div>
+
+            <!-- <div class="node-container">
+                <div class="node-icon"><i class="fa-brands fa-docker"></i></div>
+                <div class="node-label">Docker Container</div>
+                <div class="node-sub">Python ELT Engine</div>
+            </div> 
+
+            <div class="connector"><i class="fa-solid fa-arrow-right"></i></div> -->
+
+            <div class="node-container">
+                <div class="node-icon"><i class="fa-solid fa-database"></i></div>
+                <div class="node-label">GCS Bucket</div>
+                <div class="node-sub">Partitioned Data Lake</div>
+            </div>
+        </div>
+    </div>
+    <!-- Data Pipeline Diagram -->
+    
+    <!-- Timeline -->
+    <div class="timeline-container">
+        <div class="timeline-title">
+            <p>From API consumption to Cloud Storage on GCP bucket</p>
+        </div>
+        
+        <div class="timeline">
+            <div class="timeline-item">
+                <div class="timeline-dot">
+                    <i class="fa-solid fa-cloud-download"></i>
+                </div>
+                <div class="timeline-time">Extraction</div>
+                <div class="timeline-content">
+                    <span class="section-tag">01 — Data Sourcing</span>
+                    <h3>Large Scale API Consumption</h3>
+                    <p>
+                        Development of a data collection engine in Python to interact with BrazilAPI, extracting data from 55 CNPJs.
+                    </p>
+                    <ul>
+                        <li>Request and retry handling</li>
+                        <li>Collection of demographic and registration data</li>
+                        <li>Initial structuring in JSON/Dictionary format</li>
+                        <li>Dependency isolation via Docker</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-dot">
+                    <i class="fa-solid fa-folder-tree"></i>
+                </div>
+                <div class="timeline-time">Organization</div>
+                <div class="timeline-content">
+                    <span class="section-tag">02 — Data Architecture</span>
+                    <h3>Partitioning Strategy</h3>
+                    <p>
+                        Implementation of temporal partitioning logic to ensure query efficiency and organization of the Bucket.
+                    </p>
+                    <ul>
+                        <li>Hierarchical organization by Year/Month/Day</li>
+                        <li>Standardization for Hive-style partitioning</li>
+                        <li>Ease of search for temporal snapshots</li>
+                        <li>Optimization of storage and scan costs</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-dot">
+                    <i class="fa-solid fa-server"></i>
+                </div>
+                <div class="timeline-time">Cloud Loading</div>
+                <div class="timeline-content">
+                    <span class="section-tag">03 — Cloud Storage</span>
+                    <h3>Hydration of the Data Lake (GCS)</h3>
+                    <p>
+                        Secure connection with Google Cloud Platform for automatic loading of processed data.
+                    </p>
+                    <ul>
+                        <li>Integration via Google Cloud SDK</li>
+                        <li>Management of Service Accounts and Secrets</li>
+                        <li>Optimized upload for GCS Buckets</li>
+                        <li>Maintenance of file integrity in the Load</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-dot">
+                    <i class="fa-solid fa-gears"></i>
+                </div>
+                <div class="timeline-time">Automation</div>
+                <div class="timeline-content">
+                    <span class="section-tag">04 — Orchestration</span>
+                    <h3>GitHub Actions (Lite Version)</h3>
+                    <p>
+                        Configuration of a CI/CD workflow to transform the script into a serverless and fully autonomous process.
+                    </p>
+                    <ul>
+                        <li>Scheduling via Cron (daily at 08:50 AM BRT or UTC 11:50 AM)</li>
+                        <li>Instantiation of temporary runners</li>
+                        <li>Configuration of secure environment variables</li>
+                        <li>"Hands-off" pipeline (no manual intervention)</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-dot">
+                    <i class="fa-solid fa-rocket"></i>
+                </div>
+                <div class="timeline-time">Next Steps</div>
+                <div class="timeline-content">
+                    <span class="section-tag">05 — Scalability</span>
+                    <h3>Airflow & Cloud Expansion</h3>
+                    <p>
+                        The project is ready to evolve from a Lite model to a robust orchestration using complex containers.
+                    </p>
+                    <ul>
+                        <li>Advanced orchestration via Apache Airflow</li>
+                        <li>Deploy on Google Compute Engine (VM)</li>
+                        <li>Real-time container health monitoring</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Timeline -->
+
+    <!-- Github portfolio link -->
+    <div class="dashboard-section">
+            <div style="text-align: center;">
+                <i class="fa-brands fa-github" style="font-size: 4rem; color: #00ff88; margin-bottom: 20px;"></i>
+                <br>
+                <a href="https://github.com/ANIBEserra/Portifolio/tree/main/projetos/data_engineering/credit_guard_ml_pipeline" target="_blank" style="color: #00ff88; font-weight: bold; font-size: 1.5rem; text-decoration: none; border: 1px solid #00ff88; padding: 15px 30px; border-radius: 50px;">
+                    See the repository
+                </a>
+            </div>
+    </div>
+    <!-- Github portfolio link -->
+    
+    <!-- Status and Logs from git actions -->
+<div class="dashboard-section">
+        <div class="dashboard-title" style="text-align: left; margin-bottom: 20px;">
+            <h3 style="font-family: 'Space Grotesk'; color: #fff;">Pipeline Logs (Live Simulation)</h3>
+            <p id="last-run-timestamp" style="font-size: 0.85rem; color: #8b949e;">succeeded 5 hours ago in 4m 10s</p>
+        </div>
+
+        <div class="actions-console">
+            <details class="action-step">
+                <summary>
+                    <i class="fa-solid fa-chevron-right step-arrow"></i>
+                    <i class="fa-solid fa-circle-check step-check"></i>
+                    <span>Set up job</span>
+                    <span class="step-duration">1s</span>
+                </summary>
+                <div class="step-log">
+                    <span class="log-line"><span class="log-timestamp">08:50:01</span> Executing on hosted runner 'GitHub Actions 4'</span>
+                    <span class="log-line"><span class="log-timestamp">08:50:02</span> Job preparation complete.</span>
+                </div>
+            </details>
+
+            <details class="action-step">
+                <summary>
+                    <i class="fa-solid fa-chevron-right step-arrow"></i>
+                    <i class="fa-solid fa-circle-check step-check"></i>
+                    <span>Checkout Repository</span>
+                    <span class="step-duration">10s</span>
+                </summary>
+                <div class="step-log">
+                    <span class="log-line"><span class="log-timestamp">08:50:12</span> Syncing repository: ANIBEserra/Portfolio</span>
+                    <span class="log-line"><span class="log-timestamp">08:50:22</span> Getting Git credentials for authentication...</span>
+                </div>
+            </details>
+
+            <details class="action-step">
+                <summary>
+                    <i class="fa-solid fa-chevron-right step-arrow"></i>
+                    <i class="fa-solid fa-circle-check step-check"></i>
+                    <span>Set up Python</span>
+                    <span class="step-duration">8s</span>
+                </summary>
+                <div class="step-log">
+                    <span class="log-line"><span class="log-timestamp">08:50:30</span> Downloading Python 3.10...</span>
+                    <span class="log-line"><span class="log-timestamp">08:50:38</span> Python environment ready.</span>
+                </div>
+            </details>
+
+            <details class="action-step">
+                <summary>
+                    <i class="fa-solid fa-chevron-right step-arrow"></i>
+                    <i class="fa-solid fa-circle-check step-check"></i>
+                    <span>Execute Ingestion Script</span>
+                    <span class="step-duration">3m 18s</span>
+                </summary>
+                <div class="step-log">
+                    <span class="log-line"><span class="log-timestamp">08:51:00</span> [INFO] Starting connection to BrazilAPI...</span>
+                    <span class="log-line"><span class="log-timestamp">08:52:10</span> [INFO] Extraction complete. 55 CNPJs processed.</span>
+                    <span class="log-line"><span class="log-timestamp">08:54:18</span> [INFO] Loading data to GCS: credit-guard-raw-sa-east1</span>
+                </div>
+            </details>
+
+            <details class="action-step">
+                <summary>
+                    <i class="fa-solid fa-chevron-right step-arrow"></i>
+                    <i class="fa-solid fa-circle-check step-check"></i>
+                    <span>Complete job</span>
+                    <span class="step-duration">0s</span>
+                </summary>
+                <div class="step-log">
+                    <span class="log-line"><span class="log-timestamp">08:54:20</span> Cleaning up temporary files.</span>
+                    <span class="log-line"><span class="log-timestamp">08:54:21</span> Job finished with success.</span>
+                </div>
+            </details>
+        </div>
+    </div>
+    <!-- Status and Logs from git actions -->
+    
+    <footer>
+        <div class="footer-content">
+            <p>© <script>document.write(new Date().getFullYear())</script> — Data Engineering Portfolio</p>
+            <p>Developed by <span class="footer-highlight">Anna Beatriz Beserra</span></p>
+        </div>
+    </footer>
+</body>
+</html>
