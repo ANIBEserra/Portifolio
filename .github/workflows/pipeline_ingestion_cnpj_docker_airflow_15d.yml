@@ -37,18 +37,26 @@ jobs:
         run: |
           cd projetos/data_engineering/credit_guard_ml_pipeline
           
-          # Espera essencial para o Airflow inicializar o banco antes do comando
           echo "Waiting 90s for Airflow to warm up..."
           sleep 90
 
-          SCHEDULER_CONTAINER=$(docker ps --filter "name=airflow-scheduler" --format "{{.Names}}" | head -n 1)
-          echo "Targeting container: $SCHEDULER_CONTAINER"
+          # ESTA LINHA É A CHAVE: Busca pelo ID usando a imagem oficial
+          CONTAINER_ID=$(docker ps --filter "ancestor=apache/airflow:2.7.1" --filter "status=running" --format "{{.ID}}" | head -n 1)
           
-          docker exec $SCHEDULER_CONTAINER airflow dags trigger pipeline_ingestao_cnpj
+          echo "Targeting Container ID: $CONTAINER_ID"
+
+          if [ -z "$CONTAINER_ID" ]; then
+            echo "❌ Erro: Container do Airflow não encontrado ou não está rodando!"
+            docker ps -a
+            exit 1
+          fi
+
+          # Dispara a DAG usando o ID
+          docker exec $CONTAINER_ID airflow dags trigger pipeline_ingestao_cnpj
           
           echo "Monitoring logs..."
           sleep 60
-          docker logs $SCHEDULER_CONTAINER --tail 100
+          docker logs $CONTAINER_ID --tail 100
 
       # 5. Clean up the environment to free up runner resources
       - name: Shutdown Infrastructure
