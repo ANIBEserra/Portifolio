@@ -7,3 +7,4 @@ ipykernel
 requests
 google-cloud-storage
 pytz
+python-dotenv

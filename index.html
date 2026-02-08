@@ -413,6 +413,24 @@
                 padding: 30px;
             }
         }
+
+        /*about me loding icon*/
+        .loader {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #30363d; /* Cor do fundo (mais escura) */
+            border-top: 2px solid #238636; /* Cor do destaque (verde igual ao seu '01') */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            flex-shrink: 0; /* Impede o círculo de achatar */
+            margin-top: 4px; /* Alinha verticalmente com a primeira linha do texto */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
     </style>
 </head>
 <body>
@@ -451,14 +469,19 @@
     <div class="container">
 
         <!-- Sobre Mim -->
-        <section>
-            <div class="section-number">01 — PROFILE</div>
-            <h2>About me</h2>
-            
-            <p class="intro-text" style="max-width: 800px; color: #8b949e; margin-bottom: 40px; line-height: 1.6;">
-                Trying to understand the whole process of data in a 360° view. 
+    <section>
+        <div class="section-number">01 — PROFILE</div>
+        <h2>About me</h2>
+        
+        <div style="display: flex; align-items: flex-start; gap: 15px;">
+            <div class="loader"></div>
+
+            <p class="intro-text" style="max-width: 800px; color: #8b949e; margin-bottom: 40px; line-height: 1.6; margin-top: 0;">
+                Seeking a comprehensive, 360° understanding of the company's data ecosystem.
             </p>
-        </section>
+        </div>
+
+    </section>
 
         <!-- Projetos -->
         <section>

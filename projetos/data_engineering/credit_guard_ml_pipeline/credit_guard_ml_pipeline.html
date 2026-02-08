@@ -548,7 +548,7 @@
                 <span class="label">Data Engineering Case Study</span>
                 <h1>Automated ELT<br>CNPJ Cloud Sync</h1>
                 <p class="hero-desc">
-                    A data pipeline that orchestrates the ingestion of registration data from BrazilAPI directly to a Bucket on Google Cloud.
+                    A data pipeline that orchestrates the ingestion of registration data from BrasilAPI directly to a Bucket on Google Cloud.
                 </p>
             </div>
 
@@ -578,7 +578,7 @@
         <div class="pipeline-diagram">
             <div class="node-container highlight">
                 <div class="node-icon"><i class="fa-solid fa-globe"></i></div>
-                <div class="node-label">Brazil API</div>
+                <div class="node-label">Brasil API</div>
                 <div class="node-sub">Data Source</div>
             </div>
 
@@ -633,7 +633,7 @@
                     <span class="section-tag">01 — Data Sourcing</span>
                     <h3>Large Scale API Consumption</h3>
                     <p>
-                        Development of a data collection engine in Python to interact with BrazilAPI, extracting data from 55 CNPJs.
+                        Development of a data collection engine in Python to interact with BrasilAPI, extracting data from 55 CNPJs.
                     </p>
                     <ul>
                         <li>Request and retry handling</li>
@@ -739,80 +739,56 @@
     <!-- Github portfolio link -->
     
     <!-- Status and Logs from git actions -->
-<div class="dashboard-section">
-        <div class="dashboard-title" style="text-align: left; margin-bottom: 20px;">
-            <h3 style="font-family: 'Space Grotesk'; color: #fff;">Pipeline Logs (Live Simulation)</h3>
-            <p id="last-run-timestamp" style="font-size: 0.85rem; color: #8b949e;">succeeded 5 hours ago in 4m 10s</p>
+    <div class="dashboard-section">
+        <div class="dashboard-title" style="text-align: left; margin-bottom: 20px;" >
+            <h3>Pipeline Logs</h3>
+            <p id="last-run-timestamp" style="font-size: 1.0rem; color: #8b949e;"></p>
         </div>
 
-        <div class="actions-console">
-            <details class="action-step">
-                <summary>
-                    <i class="fa-solid fa-chevron-right step-arrow"></i>
-                    <i class="fa-solid fa-circle-check step-check"></i>
-                    <span>Set up job</span>
-                    <span class="step-duration">1s</span>
-                </summary>
-                <div class="step-log">
-                    <span class="log-line"><span class="log-timestamp">08:50:01</span> Executing on hosted runner 'GitHub Actions 4'</span>
-                    <span class="log-line"><span class="log-timestamp">08:50:02</span> Job preparation complete.</span>
-                </div>
-            </details>
-
-            <details class="action-step">
-                <summary>
-                    <i class="fa-solid fa-chevron-right step-arrow"></i>
-                    <i class="fa-solid fa-circle-check step-check"></i>
-                    <span>Checkout Repository</span>
-                    <span class="step-duration">10s</span>
-                </summary>
-                <div class="step-log">
-                    <span class="log-line"><span class="log-timestamp">08:50:12</span> Syncing repository: ANIBEserra/Portfolio</span>
-                    <span class="log-line"><span class="log-timestamp">08:50:22</span> Getting Git credentials for authentication...</span>
-                </div>
-            </details>
-
-            <details class="action-step">
-                <summary>
-                    <i class="fa-solid fa-chevron-right step-arrow"></i>
-                    <i class="fa-solid fa-circle-check step-check"></i>
-                    <span>Set up Python</span>
-                    <span class="step-duration">8s</span>
-                </summary>
-                <div class="step-log">
-                    <span class="log-line"><span class="log-timestamp">08:50:30</span> Downloading Python 3.10...</span>
-                    <span class="log-line"><span class="log-timestamp">08:50:38</span> Python environment ready.</span>
-                </div>
-            </details>
-
-            <details class="action-step">
-                <summary>
-                    <i class="fa-solid fa-chevron-right step-arrow"></i>
-                    <i class="fa-solid fa-circle-check step-check"></i>
-                    <span>Execute Ingestion Script</span>
-                    <span class="step-duration">3m 18s</span>
-                </summary>
-                <div class="step-log">
-                    <span class="log-line"><span class="log-timestamp">08:51:00</span> [INFO] Starting connection to BrazilAPI...</span>
-                    <span class="log-line"><span class="log-timestamp">08:52:10</span> [INFO] Extraction complete. 55 CNPJs processed.</span>
-                    <span class="log-line"><span class="log-timestamp">08:54:18</span> [INFO] Loading data to GCS: credit-guard-raw-sa-east1</span>
-                </div>
-            </details>
-
-            <details class="action-step">
-                <summary>
-                    <i class="fa-solid fa-chevron-right step-arrow"></i>
-                    <i class="fa-solid fa-circle-check step-check"></i>
-                    <span>Complete job</span>
-                    <span class="step-duration">0s</span>
-                </summary>
-                <div class="step-log">
-                    <span class="log-line"><span class="log-timestamp">08:54:20</span> Cleaning up temporary files.</span>
-                    <span class="log-line"><span class="log-timestamp">08:54:21</span> Job finished with success.</span>
-                </div>
-            </details>
+        <div id="workflow-container">
+            <pre id="raw-json-output" style="background: #161b22; color: #e6edf3; padding: 15px; border-radius: 6px; overflow: auto; max-height: 500px;">
+                Reading the last run...
+            </pre>
         </div>
     </div>
+
+    <script>
+    async function testJsonLoad() {
+        const display = document.getElementById('raw-json-output');
+        const timestamp = document.getElementById('last-run-timestamp');
+
+        // path to the json file
+        const JSON_PATH = './data/github/github_workflow_run.json'
+
+        try {
+            const response = await fetch(JSON_PATH)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+
+                const {started_at, completed_at} = data.jobs[0];
+
+                const now = new Date();
+                const completedDate = new Date(completed_at);
+                const diffMs = now - completedDate;
+                const hours = Math.floor(diffMs / (1000 * 60 * 60));
+                const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diffMs % (1000 * 60)) / 1000)
+
+                timestamp.textContent = `Succeeded ${hours}h ${minutes}m ago`
+
+                display.textContent = JSON.stringify(data, null, 2);
+                display.style.color = "#3fb950"; // green if ok
+            });           
+
+        } catch (error) {
+            display.textContent = "Error loading JSON: " + error.message;
+            display.style.color = "#f85149"; // red if fail
+        }
+    }
+
+    testJsonLoad();
+    </script>
     <!-- Status and Logs from git actions -->
     
     <footer>
