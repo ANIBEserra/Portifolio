@@ -1,4 +1,4 @@
-name: Send Daily Poll: Meal Plan (Company) Morning and Afternoon
+name: Send Daily Poll - Meal Plan (Company) Morning and Afternoon
 
 on:
   schedule:
