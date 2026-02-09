@@ -1,0 +1,17 @@
+#credentials
+.env
+
+# Python venv
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+dist/
+build/
+
+#IDE
+.vscode/
+.idea/
+.DS_Store
