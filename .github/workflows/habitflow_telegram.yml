@@ -27,6 +27,6 @@ jobs:
       - name: Run bot script
         env:
           # Secrets
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          CHAT_ID: ${{ secrets.CHAT_ID }}
+          TELEGRAM_TOKEN: cd projetos/data_science/bots/habitflow_telegram/.env ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: cd projetos/data_science/bots/habitflow_telegram/.env ${{ secrets.CHAT_ID }}
         run: python projetos/data_science/bots/habitflow_telegram/scripts/main.py
