@@ -92,6 +92,7 @@ def process_raw_to_dataframes(path_name: str) -> dict:
     all_data_frames = {}
 
     fuso_br = pytz.timezone('America/Sao_Paulo') # SP timezone
+    today = datetime.now(fuso_br).replace(microsecond=0) # today's date
 
     alias_map = {k: v['alias'] for k, v in FULL_METADATA_MAP.items()}
     type_map = {v['alias']: v['type'] for k, v in FULL_METADATA_MAP.items()}
@@ -121,7 +122,7 @@ def process_raw_to_dataframes(path_name: str) -> dict:
                             df_final[col] = pd.to_numeric(df_final[col], errors='coerce').fillna(0).astype(target_type)
                 
                 df_final = df_final.drop(columns=['qsa', 'cnaes_secundarios', 'regime_tributario'], errors='ignore')
-                df_final['DTEXTREF'] = pd.to_datetime(datetime.now(fuso_br).date())
+                df_final['DTEXTREF'] = pd.to_datetime(today)
 
                 all_data_frames[file] = df_final
     return all_data_frames
