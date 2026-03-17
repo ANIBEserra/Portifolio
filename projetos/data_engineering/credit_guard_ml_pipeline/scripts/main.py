@@ -41,7 +41,7 @@ CLIENT_BQ = bigquery.Client()
 BUCKET = CLIENT.bucket('credit-guard-raw-sa-east1')
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 
-# -------------------------- AUXILIARY FUNCTIONS --------------------------
+# -------------------------- AUXILIARY FUNCTIONS -----------------------------
 def expand_and_rename(df_orig: pd.DataFrame, col_name: str, rename_dict: dict) -> pd.DataFrame:
     if col_name in df_orig.columns and not df_orig[col_name].dropna().empty:
         extracted = df_orig[col_name].apply(lambda x: x[0] if isinstance(x, list) and len(x) > 0 else {})
@@ -49,7 +49,7 @@ def expand_and_rename(df_orig: pd.DataFrame, col_name: str, rename_dict: dict) -
         return df_norm.rename(columns=rename_dict)
     return pd.DataFrame()
     
-# -------------------------- RAW DATA INGESTION  FUNCTIONS --------------------------
+# ------------------------ RAW DATA INGESTION  FUNCTIONS ----------------------
 def buscar_cnpj(cnpj):
     cnpj= re.sub(r'\D', '', str(cnpj))
     url = f"https://brasilapi.com.br/api/cnpj/v1/{cnpj}"
@@ -87,7 +87,7 @@ def data_injection_raw(file_name):
         print(f"Error uploading file: {e}")
 
 
-# -------------------------- SILVER DATA FUNCTIONS --------------------------
+# -------------------------- SILVER DATA FUNCTIONS ----------------------------
 def process_raw_to_dataframes(path_name: str) -> dict:
     all_data_frames = {}
 
@@ -122,9 +122,13 @@ def process_raw_to_dataframes(path_name: str) -> dict:
                             df_final[col] = pd.to_numeric(df_final[col], errors='coerce').fillna(0).astype(target_type)
                 
                 df_final = df_final.drop(columns=['qsa', 'cnaes_secundarios', 'regime_tributario'], errors='ignore')
-                df_final['DTEXTREF'] = pd.to_datetime(today)
+                df_final['DTEXTREF'] = today
+                df_final['DTEXTREF'] = df_final['DTEXTREF'].dt.tz_localize(None).astype('datetime64[us]')
 
                 all_data_frames[file] = df_final
+    
+    print(f"✅ PROCESSING RAW TO DATAFRAMES ENDED SUCCESSFULLY. TOTAL FILES PROCESSED: {len(all_data_frames)}")
+
     return all_data_frames
     
 
@@ -199,19 +203,19 @@ def load_silver_to_bigquery() -> None:
         for error in load_job.errors:
             print(f" - {error['message']}")
     else:
-        print("✅ No errors reported during the load job.")
+        print("✅ LOAD JOB COMPLETED SUCCESSFULLY. NO ERRORS REPORTED.")
 
     destination_table = CLIENT_BQ.get_table(TABLE_ID)  # Faz uma chamada rápida para ler os metadados da tabela
 
-    print(f"--- Job Summary ---")
+    print(f"--- LOAD JOB SUMMARY ---")
     print(f"Job ID: {load_job.job_id}")
     print(f"Status: {load_job.state}")
     print(f"Rows loaded: {destination_table.num_rows}") # Total lines after updated
     print(f"Total size: {destination_table.num_bytes / 1024**2:.2f} MB")
-    print(f"Table {TABLE_ID} updated successfully!")
+    print(f"Table {TABLE_ID} UPDATED SUCCESSFULLY!")
         
 
-# -------------------------- GITHUB API FUNCTIONS --------------------------
+# --------------------------- GITHUB API FUNCTIONS ----------------------------
 #github api call
 def get_github_workflow():
     owner = 'ANIBEserra'
@@ -243,7 +247,7 @@ def get_github_workflow():
         print(f"Error: {e}")
 
 
-# ----------------------- CLEAN LOCAL TEMPORARY FILES -----------------------
+# ------------------------- CLEAN LOCAL TEMPORARY FILES ------------------------
 def clean_local_temp_files():
 
     folders = [RAW_DATA_PATH, SILVER_DATA_PATH]
@@ -260,10 +264,10 @@ def clean_local_temp_files():
             except Exception as e:
                 print(f"Error deleting file: {file_path} - Error: {e}")
 
-    print(f"✅ Local temporary files cleaned successfully.")
+    print(f"✅ LOCAL TEMPORARY FILES CLEANED SUCCESSFULLY.")
 
 
-# -------------------------- ORCHESTRATION ---------------------------------
+# ---------------------------- ORCHESTRATION -----------------------------------
 
 if __name__ == "__main__":
     # 1. raw data ingestion (saving to local)
@@ -272,6 +276,8 @@ if __name__ == "__main__":
     for cnpj in df_input['CNPJ']:
         buscar_cnpj(cnpj)
         sleep(2.5)
+
+    print(f"✅ BUSCAR CNPJ ENDED SUCCESSFULLY.")
 
     # 2. raw data ingestion (saving to cloud)
     local_files = os.listdir(RAW_DATA_PATH)
