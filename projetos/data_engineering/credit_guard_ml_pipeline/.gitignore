@@ -20,4 +20,4 @@ venv/
 .env
 
 #ignore docker
-docker-compose.yaml
+infra/docker-compose.yaml
