@@ -213,7 +213,7 @@ def load_silver_to_bigquery() -> None:
     print(f"Rows loaded: {destination_table.num_rows}") # Total lines after updated
     print(f"Total size: {destination_table.num_bytes / 1024**2:.2f} MB")
     print(f"Table {TABLE_ID} UPDATED SUCCESSFULLY!")
-        
+
 
 # --------------------------- GITHUB API FUNCTIONS ----------------------------
 #github api call
