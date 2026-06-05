@@ -1,1 +1,74 @@
+## 📋 Project Overview
 
+This repository contains the case study and technical implementation details for a **Real-time Monitoring System** designed for transport operations. Before vehicles begin their journeys, operators execute critical safety checklists. This solution transforms raw operational checkpoints into a live, highly actionable data layer, ensuring safety standards, tracking daily trends, and reducing operational risk.
+
+Developed by: **Anna Beatriz Beserra**
+
+---
+
+## ⚡ Highlights & Key Metrics
+
+- **Real-time Monitoring:** Instant visibility into incoming vehicle checklist events.
+- **100% Visibility:** Total operational transparency of approved vs. rejected status.
+- **Core Stack:** Powered completely by **SQL Server** (Data Processing) & **Power BI** (Consumption Layer).
+
+---
+
+## 🗺️ Project Journey (Timeline)
+
+### 🚀 01 — Challenge: The Business Problem
+The client lacked immediate insight into vehicle verification checklists performed right before field deployment. 
+- **Goal:** Real-time analysis of approvals/rejections.
+- **Requirements:** - Immediate notification/identification of rejection causes.
+  - Evaluation of driver and operator performance.
+  - Tracking of daily and hourly vehicle health trends.
+
+### 💡 02 — Solution: Solution Architecture
+An end-to-end framework built around optimized data workflows that dynamically handle timestamps and KPIs.
+- Overall Approval/Rejection rates.
+- Average checklist execution times.
+- Operator rankings based on efficiency and precision.
+- Hourly time series charts synced with **Dynamic UTC conversion**.
+
+### 🗄️ 03 — Ingestion: Data Processing
+To keep queries light and fast for real-time reporting, a mirrored staging structure was set up in **SQL Server** using highly efficient views.
+- Real-time pre-calculations for checklist duration.
+- Automated status categorization logic.
+- Dynamic parsing and extraction of itemized rejection logs.
+- Strict query tuning and indexed views to secure quick refresh cycles.
+
+### 📊 04 — Visualization: Consumption Layer
+Built with a user-centric UI using **DirectQuery** to reflect exact transactional states instantly.
+- Unpacked relational tables mapping precise vehicle fail points.
+- Complex data models driven by tailor-made **DAX measures**.
+- Dynamic time logic adjusting via `UTCNOW()` for universal cross-timezone auditing.
+- Fluid, interactive filtering components.
+
+### 🏆 05 — Impact: Measurable Success
+- **Zero Blind Spots:** Enabled complete executive and operational vision over the floor.
+- **Risk Mitigation:** Instant structural feedback transformed fleet safety mitigation workflows.
+- **Data-Driven Shift:** Eliminated anecdotal reporting, replacing it with factual data logs.
+- **Fewer Breakdowns:** Preventative error identification measurably decreased roadside downtime.
+
+---
+
+## 📊 Interactive Dashboard
+
+Below you can interface directly with the production solution framework inside Power BI.
+
+> 💡 **Tip:** If the inline frame is not loading properly within your environment, click the link inside the window to access the full-screen report.
+
+<iframe title="KPI LIBERACAO DE VEÍCULOS" width="100%" height="600" src="https://app.powerbi.com/view?r=eyJrIjoiZWRhZjAzZGYtZmY4Mi00YzU2LTg0ZTAtNDY3NzhlMjQ5YTY5IiwidCI6IjQ2MGRjMmQ5LWQ5NGMtNDZmNy05NzU1LTk5ZmVhMmY0ZDFhOSJ9&embedImagePlaceholder=true" frameborder="0" allowFullScreen="true"></iframe>
+
+---
+
+## 🛠️ Technologies Used
+
+- **Database Management System:** Microsoft SQL Server
+- **Data Visualization & Analytics:** Power BI (DirectQuery & DAX)
+- **Time Intelligence Context:** Dynamic UTC Operations
+
+---
+<div align="center">
+  <p>© Data Analysis Portfolio — Developed with 💚 by Anna Beatriz Beserra</p>
+</div>
