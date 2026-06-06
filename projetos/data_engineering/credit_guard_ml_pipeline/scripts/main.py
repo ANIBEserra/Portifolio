@@ -12,11 +12,12 @@ import pytz
 from dotenv import load_dotenv
 import sys
 import shutil
+import time
+
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from configs.mapping import (
-    RENAME_QSA, RENAME_CNAE, RENAME_REGIME, FULL_METADATA_MAP
-)
+from configs.mapping import ( 
+    RENAME_QSA, RENAME_CNAE, RENAME_REGIME, FULL_METADATA_MAP, SCHEMA_BQ_PIPELINE_LOGS )
 
 load_dotenv()
 
@@ -65,12 +66,16 @@ def buscar_cnpj(cnpj):
             with open(file_path, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=4, ensure_ascii=False)
                 print(f"File saved successfully at: {file_path}")
+            return True
 
         else:
             print(f"{response.status_code} for cnpj {cnpj}")
+
     except Exception as e:
         print(f"Connection failed {e}")
-
+        return False
+    
+    
 
 def data_injection_raw(file_name):
     try:
@@ -82,13 +87,15 @@ def data_injection_raw(file_name):
         blob = BUCKET.blob(cloud_destination)
         blob.upload_from_filename(local_path)
         print(f'file {file_name} successfully uploaded to {cloud_destination}')
+        return True
 
     except Exception as e:
         print(f"Error uploading file: {e}")
+        return False
 
 
 # -------------------------- SILVER DATA FUNCTIONS ----------------------------
-def process_raw_to_dataframes(path_name: str) -> dict:
+def process_raw_to_dataframes(path_name: str, timestamp_global: datetime) -> dict:
     all_data_frames = {}
 
     fuso_br = pytz.timezone('America/Sao_Paulo') # SP timezone
@@ -124,9 +131,10 @@ def process_raw_to_dataframes(path_name: str) -> dict:
                 df_final = df_final.drop(columns=['qsa', 'cnaes_secundarios', 'regime_tributario'], errors='ignore')
                 df_final['DTEXTREF'] = today
                 df_final['DTEXTREF'] = df_final['DTEXTREF'].dt.tz_localize(None).astype('datetime64[us]')
-
+                df_final['DTHRSCHDREF'] = timestamp_global
+                df_final['DTHRSCHDREF'] = df_final['DTHRSCHDREF'].dt.tz_localize(None).astype('datetime64[us]')
                 all_data_frames[file] = df_final
-    
+                
     print(f"✅ PROCESSING RAW TO DATAFRAMES ENDED SUCCESSFULLY. TOTAL FILES PROCESSED: {len(all_data_frames)}")
 
     return all_data_frames
@@ -149,15 +157,20 @@ def save_to_silver( dfs_dict : dict) -> None:
 
 
 def data_injection_silver(file_name: str) -> None: 
-
-    fuso_br = pytz.timezone('America/Sao_Paulo') # SP timezone
-    today = datetime.now(fuso_br).strftime('%Y-%m-%d') # today's date
-    file_path = os.path.join(SILVER_DATA_PATH, file_name) # local path
+    try:
+        fuso_br = pytz.timezone('America/Sao_Paulo') # SP timezone
+        today = datetime.now(fuso_br).strftime('%Y-%m-%d') # today's date
+        file_path = os.path.join(SILVER_DATA_PATH, file_name) # local path
     
-    cloud_destination = f"silver/cnpj/ingestion_date={today}/{file_name}" # cloud path
-    blob = BUCKET.blob(cloud_destination)
-    blob.upload_from_filename(file_path)
-    print(f'file {file_name} successfully uploaded to {cloud_destination}')
+        cloud_destination = f"silver/cnpj/ingestion_date={today}/{file_name}" # cloud path
+        blob = BUCKET.blob(cloud_destination)
+        blob.upload_from_filename(file_path)
+        print(f'file {file_name} successfully uploaded to {cloud_destination}')
+        return True
+
+    except Exception as e:
+        print(f"Error uploading file: {e}")
+        return False
 
 
 # -------------------------- LOAD SILVER TO BIGQUERY --------------------------
@@ -176,6 +189,7 @@ def load_silver_to_bigquery() -> None:
         print(f"Error creating dataset: {e}")
 
 
+    #append to bq table
     job_config = bigquery.LoadJobConfig(
         source_format = bigquery.SourceFormat.PARQUET,
         write_disposition = 'WRITE_APPEND', #append new data to the table (more viable in big data scenarios)
@@ -213,6 +227,32 @@ def load_silver_to_bigquery() -> None:
     print(f"Rows loaded: {destination_table.num_rows}") # Total lines after updated
     print(f"Total size: {destination_table.num_bytes / 1024**2:.2f} MB")
     print(f"Table {TABLE_ID} UPDATED SUCCESSFULLY!")
+
+
+def bq_pipeline_logs(log_data):
+    DATASET_ID = 'credit_guard_dataset_pipeline'
+    TABLE_NAME = 'credit_guard_bq_pipeline_logs'
+    TABLE_ID = f"{CLIENT_BQ.project}.{DATASET_ID}.{TABLE_NAME}"
+
+    log_to_insert = log_data.copy()
+    if isinstance(log_to_insert.get("DTHRSCHDREF"), datetime):
+        log_to_insert["DTHRSCHDREF"] = log_to_insert["DTHRSCHDREF"].strftime('%Y-%m-%d %H:%M:%S')
+
+    rows_to_insert = [log_to_insert]
+
+    try:
+        # Instancia e cria a tabela usando o schema que você estruturou no mapping.py
+        table = bigquery.Table(TABLE_ID, schema=SCHEMA_BQ_PIPELINE_LOGS)
+        CLIENT_BQ.create_table(table, exists_ok=True)
+
+        errors = CLIENT_BQ.insert_rows_json(TABLE_ID, rows_to_insert)
+        if errors == []:
+            print("✅ PIPELINE LOG INSERTED INTO BIGQUERY SUCCESSFULLY!")
+        else:
+            print(f"⚠️ Errors inserting log: {errors}")
+
+    except Exception as e:
+        print(f"Failed to save pipeline log: {e}")
 
 
 # --------------------------- GITHUB API FUNCTIONS ----------------------------
@@ -270,40 +310,78 @@ def clean_local_temp_files():
 # ---------------------------- ORCHESTRATION -----------------------------------
 
 if __name__ == "__main__":
+    start_time = time.time()
+
+    #LOG TABLE 
+    fuso_br = pytz.timezone('America/Sao_Paulo') # SP timezone
+    timestamp_global = datetime.now(fuso_br).replace(microsecond=0)
+    today_str = timestamp_global.strftime('%Y-%m-%d')
+
+    log_data = {
+    "RUN_ID": os.getenv("GITHUB_RUN_ID", "local_test"),
+    "DTHRSCHDREF": timestamp_global, # O DTHRSCHDREF dos dados
+    "PIPELINE_NAME": "credit_guard_cnpj_pipeline",
+    "EXECUTION_STATUS": {},
+    "EXECUTION_TIME_SECONDS": {},
+    "PATH_ORIGEM_RAW": f"gs://credit-guard-raw-sa-east1/raw/cnpj/ingestion_date={today_str}/",
+    "PATH_DESTINATION_SILVER": f"gs://credit-guard-raw-sa-east1/silver/cnpj/ingestion_date={today_str}/",
+    "QT_RAW_FILES": {},
+    "QT_SILVER_FILES": {},
+    "TOTAL_RECORDS_READ": 0, # CNPJS def buscar_cnpjs
+    "TOTAL_RECORDED_RECORDS": 0, #sucssesfully returned from BrasilAPI
+    "TOTAL_REJECTED_RECORDS": 0 #Did not returned in the API get
+}
+
     # 1. raw data ingestion (saving to local)
     df_input = pd.read_csv(INPUT_PATH, dtype={'CNPJ': str})
-
+    log_data["TOTAL_RECORDS_READ"] = len(df_input)
+    sucessos = 0
     for cnpj in df_input['CNPJ']:
-        buscar_cnpj(cnpj)
+        sucessos += 1 if buscar_cnpj(cnpj) else 0
         sleep(2.5)
 
     print(f"✅ BUSCAR CNPJ ENDED SUCCESSFULLY.")
 
+    log_data["TOTAL_RECORDED_RECORDS"] = sucessos
+    log_data["TOTAL_REJECTED_RECORDS"] = log_data["TOTAL_RECORDS_READ"] - log_data["TOTAL_RECORDED_RECORDS"]
+
     # 2. raw data ingestion (saving to cloud)
     local_files = os.listdir(RAW_DATA_PATH)
+    raw_injection_raw_success = 0
     for file in local_files:
         if file.endswith('.json'):
-            data_injection_raw(file)
+            raw_injection_raw_success += 1 if data_injection_raw(file) else 0
         else:
             pass
+
+    log_data["QT_RAW_FILES"] = raw_injection_raw_success
 
     # 3. silver processing (transformations and saving to local)
     try:
-        processed_dfs = process_raw_to_dataframes(RAW_DATA_PATH)
+        processed_dfs = process_raw_to_dataframes(RAW_DATA_PATH, timestamp_global )
         save_to_silver(processed_dfs)
     except Exception as e:
         print(f"Error processing raw data to silver: {e}")
+        log_data["EXECUTION_STATUS"] = "FAILURE"
 
     # 4. silver data ingestion (saving to cloud)
     local_files = os.listdir(SILVER_DATA_PATH)
+    silver_injection_success = 0
     for file in local_files:
         if file.endswith('.parquet'):
-            data_injection_silver(file)
+            silver_injection_success +=1 if data_injection_silver(file) else 0
         else:
             pass
+        
+    log_data["QT_SILVER_FILES"] = silver_injection_success
 
     # 5. silver data ingestion (saving to bigquery)
-    load_silver_to_bigquery()
+    try:
+        load_silver_to_bigquery()
+        log_data["EXECUTION_STATUS"] = "FAILURE" if log_data["EXECUTION_STATUS"] == "FAILURE" else "SUCCESS"
+    except Exception as e:
+        print(f"Error loading silver data to bigquery: {e}")
+        log_data["EXECUTION_STATUS"] = "FAILURE"
 
     # 6. github api call (saving to local)
     get_github_workflow()
@@ -311,4 +389,14 @@ if __name__ == "__main__":
     # 7. clean local temporary files
     clean_local_temp_files()
 
+    #8. TELEMETRIA ENDING
+    end_time = time.time()
+    log_data["EXECUTION_TIME_SECONDS"] = round(end_time - start_time, 2)
+
+    #Send structured dictionary to save bigquery lineage
+    bq_pipeline_logs(log_data)
+
     print("ETL PIPELINE COMPLETED SUCCESSFULLY!")
+
+
+

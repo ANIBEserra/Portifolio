@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from google.cloud import bigquery
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 RAW_DATA_DIR = os.path.join(BASE_DIR, "data", "raw")
@@ -109,3 +110,19 @@ RENAME_REGIME = {
     'forma_de_tributacao': 'regime_tributario_forma_de_tributacao', 
     'quantidade_de_escrituracoes': 'regime_tributario_quantidade_de_escrituracoes'
 }
+
+
+SCHEMA_BQ_PIPELINE_LOGS = [
+    bigquery.SchemaField("RUN_ID", "STRING"),
+    bigquery.SchemaField("DTHRSCHDREF", "TIMESTAMP"),
+    bigquery.SchemaField("PIPELINE_NAME", "STRING"),
+    bigquery.SchemaField("EXECUTION_STATUS", "STRING"),
+    bigquery.SchemaField("EXECUTION_TIME_SECONDS", "FLOAT"),
+    bigquery.SchemaField("PATH_ORIGEM_RAW", "STRING"),
+    bigquery.SchemaField("QT_RAW_FILES", "INTEGER"),
+    bigquery.SchemaField("PATH_DESTINATION_SILVER", "STRING"),
+    bigquery.SchemaField("QT_SILVER_FILES", "INTEGER"),
+    bigquery.SchemaField("TOTAL_RECORDS_READ", "INTEGER"),
+    bigquery.SchemaField("TOTAL_RECORDED_RECORDS", "INTEGER"),
+    bigquery.SchemaField("TOTAL_REJECTED_RECORDS", "INTEGER"),
+]
