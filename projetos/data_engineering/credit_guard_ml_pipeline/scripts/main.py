@@ -12,7 +12,7 @@ import pytz
 from dotenv import load_dotenv
 import sys
 import shutil
-from time import time
+import time
 
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
