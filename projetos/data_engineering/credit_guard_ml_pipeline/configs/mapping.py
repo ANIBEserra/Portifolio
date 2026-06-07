@@ -113,16 +113,27 @@ RENAME_REGIME = {
 
 
 SCHEMA_BQ_PIPELINE_LOGS = [
-    bigquery.SchemaField("RUN_ID", "STRING"),
+    # METADADOS GLOBAIS DE TELEMETRIA
+    bigquery.SchemaField("GH_RUN_ID", "STRING"),
     bigquery.SchemaField("DTHRSCHDREF", "TIMESTAMP"),
-    bigquery.SchemaField("PIPELINE_NAME", "STRING"),
+    bigquery.SchemaField("GH_PIPELINE_NAME", "STRING"),
     bigquery.SchemaField("EXECUTION_STATUS", "STRING"),
+    bigquery.SchemaField("ERROR_MESSAGE", "STRING"),
     bigquery.SchemaField("EXECUTION_TIME_SECONDS", "FLOAT"),
-    bigquery.SchemaField("PATH_ORIGEM_RAW", "STRING"),
-    bigquery.SchemaField("QT_RAW_FILES", "INTEGER"),
-    bigquery.SchemaField("PATH_DESTINATION_SILVER", "STRING"),
-    bigquery.SchemaField("QT_SILVER_FILES", "INTEGER"),
-    bigquery.SchemaField("TOTAL_RECORDS_READ", "INTEGER"),
-    bigquery.SchemaField("TOTAL_RECORDED_RECORDS", "INTEGER"),
-    bigquery.SchemaField("TOTAL_REJECTED_RECORDS", "INTEGER"),
+
+    # ---------------- 1. LOGS DA API (ORIGEM) ------------------------
+    # Representa a leitura do CSV inicial e o sucesso/rejeição nas chamadas HTTP
+    bigquery.SchemaField("API_TOTAL_CNPJS_INPUT", "INTEGER"),       # Antigo TOTAL_RECORDS_READ
+    bigquery.SchemaField("API_SUCCESS_RETURNS", "INTEGER"),         # Antigo TOTAL_RECORDED_RECORDS
+    bigquery.SchemaField("API_REJECTED_RETURNS", "INTEGER"),         # Antigo TOTAL_REJECTED_RECORDS
+
+    # ---------------- 2. LOGS DA CAMADA RAW (INGESTÃO) ----------------
+    # Representa o armazenamento dos arquivos brutos exatamente como vieram da API
+    bigquery.SchemaField("RAW_PATH_DESTINATION", "STRING"),         # Antigo PATH_ORIGEM_RAW
+    bigquery.SchemaField("RAW_FILES_UPLOADED", "INTEGER"),           # Antigo QT_RAW_FILES
+
+    # ---------------- 3. LOGS DA CAMADA SILVER (TRANSFORMAÇÃO) ----------------
+    # Representa o processamento, limpeza, salvamento em Parquet e carga no BQ
+    bigquery.SchemaField("SILVER_PATH_DESTINATION", "STRING"),      # Antigo PATH_DESTINATION_SILVER
+    bigquery.SchemaField("SILVER_FILES_PROCESSED", "INTEGER"),       # Antigo QT_SILVER_FILES
 ]

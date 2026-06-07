@@ -194,6 +194,7 @@ def load_silver_to_bigquery() -> None:
         source_format = bigquery.SourceFormat.PARQUET,
         write_disposition = 'WRITE_APPEND', #append new data to the table (more viable in big data scenarios)
         autodetect = True,
+        schema_update_options=[bigquery.SchemaUpdateOption.ALLOW_FIELD_ADDITION]
     )
 
     try:
@@ -318,32 +319,37 @@ if __name__ == "__main__":
     today_str = timestamp_global.strftime('%Y-%m-%d')
 
     log_data = {
-    "RUN_ID": os.getenv("GITHUB_RUN_ID", "local_test"),
-    "DTHRSCHDREF": timestamp_global, # O DTHRSCHDREF dos dados
-    "PIPELINE_NAME": "credit_guard_cnpj_pipeline",
-    "EXECUTION_STATUS": {},
-    "EXECUTION_TIME_SECONDS": {},
-    "PATH_ORIGEM_RAW": f"gs://credit-guard-raw-sa-east1/raw/cnpj/ingestion_date={today_str}/",
-    "PATH_DESTINATION_SILVER": f"gs://credit-guard-raw-sa-east1/silver/cnpj/ingestion_date={today_str}/",
-    "QT_RAW_FILES": {},
-    "QT_SILVER_FILES": {},
-    "TOTAL_RECORDS_READ": 0, # CNPJS def buscar_cnpjs
-    "TOTAL_RECORDED_RECORDS": 0, #sucssesfully returned from BrasilAPI
-    "TOTAL_REJECTED_RECORDS": 0 #Did not returned in the API get
-}
+        # GLOBAL METADATE TELEMETRY
+        "GH_RUN_ID": os.getenv("GITHUB_RUN_ID", "local_test"),
+        "DTHRSCHDREF": timestamp_global,
+        "GH_PIPELINE_NAME": "credit_guard_cnpj_pipeline",
+        "EXECUTION_STATUS": "SUCCESS", 
+        "ERROR_MESSAGE": "",
+        "EXECUTION_TIME_SECONDS": 0.0,
+        # 1. API LOGS ORIGEM
+        "API_TOTAL_CNPJS_INPUT": 0,
+        "API_SUCCESS_RETURNS": 0,
+        "API_REJECTED_RETURNS": 0,
+        # 2. RAW LOGS INGESTION
+        "RAW_PATH_DESTINATION": f"gs://credit-guard-raw-sa-east1/raw/cnpj/ingestion_date={today_str}/",
+        "RAW_FILES_UPLOADED": 0,
+        # 3. SILVER LOGS TRANSFORMATION
+        "SILVER_PATH_DESTINATION": f"gs://credit-guard-raw-sa-east1/silver/cnpj/ingestion_date={today_str}/",
+        "SILVER_FILES_PROCESSED": 0
+    }
 
     # 1. raw data ingestion (saving to local)
     df_input = pd.read_csv(INPUT_PATH, dtype={'CNPJ': str})
-    log_data["TOTAL_RECORDS_READ"] = len(df_input)
-    sucessos = 0
+    log_data["API_TOTAL_CNPJS_INPUT"] = len(df_input)
+    success = 0
     for cnpj in df_input['CNPJ']:
-        sucessos += 1 if buscar_cnpj(cnpj) else 0
+        success += 1 if buscar_cnpj(cnpj) else 0
         sleep(2.5)
 
     print(f"✅ BUSCAR CNPJ ENDED SUCCESSFULLY.")
 
-    log_data["TOTAL_RECORDED_RECORDS"] = sucessos
-    log_data["TOTAL_REJECTED_RECORDS"] = log_data["TOTAL_RECORDS_READ"] - log_data["TOTAL_RECORDED_RECORDS"]
+    log_data["API_SUCCESS_RETURNS"] = success
+    log_data["API_REJECTED_RETURNS"] = log_data["API_TOTAL_CNPJS_INPUT"] - log_data["API_SUCCESS_RETURNS"]
 
     # 2. raw data ingestion (saving to cloud)
     local_files = os.listdir(RAW_DATA_PATH)
@@ -354,7 +360,7 @@ if __name__ == "__main__":
         else:
             pass
 
-    log_data["QT_RAW_FILES"] = raw_injection_raw_success
+    log_data["RAW_FILES_UPLOADED"] = raw_injection_raw_success
 
     # 3. silver processing (transformations and saving to local)
     try:
@@ -363,6 +369,7 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Error processing raw data to silver: {e}")
         log_data["EXECUTION_STATUS"] = "FAILURE"
+        log_data["ERROR_MESSAGE"] = f"Error during silver transformation: {str(e)}"
 
     # 4. silver data ingestion (saving to cloud)
     local_files = os.listdir(SILVER_DATA_PATH)
@@ -373,15 +380,15 @@ if __name__ == "__main__":
         else:
             pass
         
-    log_data["QT_SILVER_FILES"] = silver_injection_success
+    log_data["SILVER_FILES_PROCESSED"] = silver_injection_success
 
     # 5. silver data ingestion (saving to bigquery)
     try:
         load_silver_to_bigquery()
-        log_data["EXECUTION_STATUS"] = "FAILURE" if log_data["EXECUTION_STATUS"] == "FAILURE" else "SUCCESS"
     except Exception as e:
         print(f"Error loading silver data to bigquery: {e}")
         log_data["EXECUTION_STATUS"] = "FAILURE"
+        log_data["ERROR_MESSAGE"] = f"Error during BigQuery load: {str(e)}"
 
     # 6. github api call (saving to local)
     get_github_workflow()
